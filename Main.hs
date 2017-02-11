@@ -18,9 +18,12 @@ offset = 100
 window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
+data BlockType = LineBlock deriving Show
+
 data TetrisGame = Game
   {
     brickPos :: (Float, Float),
+    brickType :: BlockType,
     gen :: StdGen
   } deriving Show
 
@@ -33,7 +36,9 @@ initialState = Game
 render :: TetrisGame -> Picture 
 render g = pictures [renderBrick g]
 
-renderBrick g = uncurry translate (brickPos g) $ color blue $ rectangleSolid tileSize tileSize
+renderBrick g = uncurry translate (brickPos g) $ renderLineBlock
+
+renderLineBlock = color blue $ rectangleSolid (4*tileSize) tileSize
 
 handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g = g
