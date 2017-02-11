@@ -10,7 +10,7 @@ import Data.Fixed
 import Data.List
 import Data.Maybe
 
-fps = 5
+fps = 50
 width = 420
 height = 465
 offset = 100
@@ -18,21 +18,27 @@ window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
 data TetrisGame = Game
-  { 
+  {
+    brickPos :: (Float, Float),
     gen :: StdGen
   } deriving Show
 
 initialState :: TetrisGame
-initialState = Game {} 
+initialState = Game
+  {
+    brickPos = (10, 200)
+  } 
 
 render :: TetrisGame -> Picture 
-render g = pictures []
+render g = pictures [renderBrick g]
+
+renderBrick g = uncurry translate (brickPos g) $ color blue $ rectangleSolid 10 10
 
 handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g = g
 handleKeys _ g = g
 
 update :: Float -> TetrisGame -> TetrisGame
-update seconds game = game
+update seconds g = g { brickPos = (brickPos g) - (0,1) }
 
 main = play window background fps initialState render handleKeys update
