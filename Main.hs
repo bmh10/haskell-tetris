@@ -11,6 +11,7 @@ import Data.List
 import Data.Maybe
 
 fps = 50
+tileSize = 20
 width = 420
 height = 465
 offset = 100
@@ -32,7 +33,7 @@ initialState = Game
 render :: TetrisGame -> Picture 
 render g = pictures [renderBrick g]
 
-renderBrick g = uncurry translate (brickPos g) $ color blue $ rectangleSolid 10 10
+renderBrick g = uncurry translate (brickPos g) $ color blue $ rectangleSolid tileSize tileSize
 
 handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g = g
