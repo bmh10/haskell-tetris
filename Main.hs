@@ -1,7 +1,6 @@
 module Main where
 
 import Graphics.Gloss
-import qualified Graphics.Gloss.Game as GG
 import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game
 import System.IO  
@@ -103,7 +102,7 @@ render g = pictures [renderLevel g,
                      renderMessage g]
 
 renderPlayer :: String -> (Int, Int) -> Direction -> PlayerState -> PacmanGame -> Picture 
-renderPlayer player (x, y) dir state game = translate x' y' $ GG.png file
+renderPlayer player (x, y) dir state game = translate x' y' $ color blue $ circleSolid 2
   where 
     (x', y') = tileToCoord (x, y)
     file = getFile player dir state game
@@ -126,7 +125,7 @@ renderDashboard g = pictures $ [scorePic, livesTxt] ++ livesPic
 
     genLivesPic :: Int -> [Picture]
     genLivesPic 0 = [blank]
-    genLivesPic n = (translate (50 + fromIntegral n*tileSize) (-fromIntegral height/2 + 10) $ GG.png "img/pacmanEast2.png") : genLivesPic (n-1)
+    genLivesPic n = (translate (50 + fromIntegral n*tileSize) (-fromIntegral height/2 + 10) $ circleSolid 2) : genLivesPic (n-1)
 
 renderMessage :: PacmanGame -> Picture
 renderMessage g = pictures [countdownPic, statusMsg]
