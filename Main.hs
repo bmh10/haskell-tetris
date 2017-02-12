@@ -18,7 +18,7 @@ offset = 100
 window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
-data BlockType = LineBlock deriving Show
+data BlockType = LineBlock | LBlock deriving (Eq, Show)
 
 data TetrisGame = Game
   {
@@ -30,15 +30,19 @@ data TetrisGame = Game
 initialState :: TetrisGame
 initialState = Game
   {
-    brickPos = (10, 200)
+    brickPos = (10, 200),
+    brickType = LBlock
   } 
 
 render :: TetrisGame -> Picture 
 render g = pictures [renderBrick g]
 
-renderBrick g = renderLineBlock g
+renderBrick g
+ | (brickType g) == LineBlock = renderLineBlock g
+ | (brickType g) == LBlock    = renderLBlock g
 
-renderLineBlock g = color blue $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0 , renderBlock g 3 0]
+renderLineBlock g = color blue $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 3 0]
+renderLBlock g    = color blue $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 2 1]
 
 renderBlock g ox oy = 
   translate x' y' $ rectangleSolid (tileSize-1) (tileSize-1)
