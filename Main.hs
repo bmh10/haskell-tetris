@@ -36,9 +36,16 @@ initialState = Game
 render :: TetrisGame -> Picture 
 render g = pictures [renderBrick g]
 
-renderBrick g = uncurry translate (brickPos g) $ renderLineBlock
+renderBrick g = renderLineBlock g
 
-renderLineBlock = color blue $ rectangleSolid (4*tileSize) tileSize
+renderLineBlock g = color blue $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0 , renderBlock g 3 0]
+
+renderBlock g ox oy = 
+  translate x' y' $ rectangleSolid (tileSize-1) (tileSize-1)
+  where
+    (x, y) = brickPos g
+    x' = x + ox*tileSize
+    y' = y + oy*tileSize
 
 handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g = g
