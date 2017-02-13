@@ -12,8 +12,8 @@ import Data.Maybe
 
 fps = 50
 tileSize = 20
-width = 420
-height = 465
+width = 400
+height = 600
 offset = 100
 window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
@@ -66,6 +66,9 @@ handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g = g { brickPos = (brickPos
 handleKeys _ g = g
 
 update :: Float -> TetrisGame -> TetrisGame
-update seconds g = g { brickPos = (brickPos g) - (0,1) }
-
+update seconds g
+ | y < -290     = g
+ | otherwise    = g { brickPos = (brickPos g) - (0,1) }
+ where 
+   (x, y) = brickPos g
 main = play window background fps initialState render handleKeys update
