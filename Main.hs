@@ -60,7 +60,7 @@ renderBlock g ox oy =
     y' = y + oy*tileSize
 
 handleKeys :: Event -> TetrisGame -> TetrisGame
-handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g = g
+handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g = g { brickPos = (brickPos g) - (tileSize,0) }
 handleKeys _ g = g
 
 update :: Float -> TetrisGame -> TetrisGame
