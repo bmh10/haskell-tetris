@@ -10,7 +10,7 @@ import Data.Fixed
 import Data.List
 import Data.Maybe
 
-fps = 50
+fps = 5
 tileSize = 20
 width = 400
 height = 600
@@ -19,11 +19,13 @@ window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
 data BlockType = LineBlock | LBlock | TBlock | SBlock | ZBlock | SquareBlock deriving (Eq, Show)
+data KeyPress  = South | East  | West | None deriving (Eq, Show)
 
 data TetrisGame = Game
   {
     brickPos :: (Float, Float),
     brickType :: BlockType,
+    keyPress :: KeyPress,
     gen :: StdGen
   } deriving Show
 
@@ -31,7 +33,8 @@ initialState :: TetrisGame
 initialState = Game
   {
     brickPos = (10, 200),
-    brickType = ZBlock
+    brickType = ZBlock,
+    keyPress = None
   } 
 
 render :: TetrisGame -> Picture 
@@ -60,10 +63,10 @@ renderBlock g ox oy =
     y' = y + oy*tileSize
 
 handleKeys :: Event -> TetrisGame -> TetrisGame
-handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = moveBlock g (-tileSize, 0)
-handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = moveBlock g (tileSize, 0)
-handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = moveBlock g (0, -tileSize)
-handleKeys _ g = g
+handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = handleKeyPress $ g { keyPress = West }
+handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = handleKeyPress $ g { keyPress = East }
+handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = handleKeyPress $ g { keyPress = South }
+handleKeys _ g = g { keyPress = None }
 
 moveBlock g (x', y')
   | y <= -290 = g
@@ -72,8 +75,16 @@ moveBlock g (x', y')
   | otherwise    = g { brickPos = (x, y) }
   where (x, y) = brickPos g + (x', y')
 
+handleKeyPress g
+ | (keyPress g) == East  = moveBlock g (tileSize, 0)
+ | (keyPress g) == West = moveBlock g (-tileSize, 0)
+ | (keyPress g) == South  = moveBlock g (0, -tileSize)
+ | otherwise = g
+
+updateBlock g = moveBlock g (0, -tileSize)
+
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
- = moveBlock g (0, -1)
+ = handleKeyPress $ updateBlock g
 
 main = play window background fps initialState render handleKeys update
