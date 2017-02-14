@@ -24,6 +24,7 @@ data KeyPress  = South | East  | West | None deriving (Eq, Show)
 data TetrisGame = Game
   {
     brickPos :: (Float, Float),
+    brickRotation :: Float,
     brickType :: BlockType,
     keyPress :: KeyPress,
     gen :: StdGen
@@ -33,6 +34,7 @@ initialState :: TetrisGame
 initialState = Game
   {
     brickPos = (10, 200),
+    brickRotation = 0,
     brickType = ZBlock,
     keyPress = None
   } 
@@ -66,6 +68,7 @@ handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = handleKeyPress $ g { keyPress = West }
 handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = handleKeyPress $ g { keyPress = East }
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = handleKeyPress $ g { keyPress = South }
+handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { brickRotation = (brickRotation g) + 90 }
 handleKeys _ g = g { keyPress = None }
 
 moveBlock g (x', y')
@@ -77,8 +80,8 @@ moveBlock g (x', y')
 
 handleKeyPress g
  | (keyPress g) == East  = moveBlock g (tileSize, 0)
- | (keyPress g) == West = moveBlock g (-tileSize, 0)
- | (keyPress g) == South  = moveBlock g (0, -tileSize)
+ | (keyPress g) == West  = moveBlock g (-tileSize, 0)
+ | (keyPress g) == South = moveBlock g (0, -tileSize)
  | otherwise = g
 
 updateBlock g = moveBlock g (0, -tileSize)
