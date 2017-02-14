@@ -60,15 +60,20 @@ renderBlock g ox oy =
     y' = y + oy*tileSize
 
 handleKeys :: Event -> TetrisGame -> TetrisGame
-handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g = g { brickPos = (brickPos g) - (tileSize,0) }
-handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = g { brickPos = (brickPos g) + (tileSize,0) }
-handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g = g { brickPos = (brickPos g) - (0,tileSize) }
+handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = moveBlock g (-tileSize, 0)
+handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = moveBlock g (tileSize, 0)
+handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = moveBlock g (0, -tileSize)
 handleKeys _ g = g
 
+moveBlock g (x', y')
+  | y <= -290 = g
+  | x <= -190 = g
+  | x >= 190  = g
+  | otherwise    = g { brickPos = (x, y) }
+  where (x, y) = brickPos g + (x', y')
+
 update :: Float -> TetrisGame -> TetrisGame
-update seconds g
- | y < -290     = g
- | otherwise    = g { brickPos = (brickPos g) - (0,1) }
- where 
-   (x, y) = brickPos g
+update seconds g 
+ = moveBlock g (0, -1)
+
 main = play window background fps initialState render handleKeys update
