@@ -75,7 +75,7 @@ moveBlock g (x', y')
   | y <= -290 = g
   | x <= -190 = g
   | x >= 190  = g
-  | otherwise    = g { brickPos = (x, y) }
+  | otherwise = g { brickPos = (x, y) }
   where (x, y) = brickPos g + (x', y')
 
 handleKeyPress g
