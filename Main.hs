@@ -85,7 +85,6 @@ handleKeyPress g
  | otherwise = g
 
 updateBlock g
- | ()
  | moveBlock g (0, -tileSize)
 
 update :: Float -> TetrisGame -> TetrisGame
