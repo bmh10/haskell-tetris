@@ -26,8 +26,8 @@ data TetrisGame = Game
     brickPos :: (Float, Float),
     brickRotation :: Float,
     brickType :: BlockType,
-    keyPress :: KeyPress,
-    gen :: StdGen
+    keyPress :: KeyPress
+    --gen :: StdGen
   } deriving Show
 
 initialState :: TetrisGame
@@ -50,12 +50,12 @@ renderBrick g
  | (brickType g) == SBlock      = renderSBlock g
  | (brickType g) == ZBlock      = renderZBlock g
 
-renderLineBlock g = color blue $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 3 0]
-renderLBlock g    = color (light blue) $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 2 1]
-renderTBlock g    = color (light yellow) $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 1 1]
-renderSquareBlock g    = color rose $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 0 1, renderBlock g 1 1]
-renderSBlock g    = color green $ pictures [renderBlock g 0 0, renderBlock g (-1) 0, renderBlock g 0 1, renderBlock g 1 1]
-renderZBlock g    = color red $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 0 1, renderBlock g (-1) 1]
+renderLineBlock g   = color blue $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 3 0]
+renderLBlock g      = color (light blue) $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 2 1]
+renderTBlock g      = color (light yellow) $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 1 1]
+renderSquareBlock g = color rose $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 0 1, renderBlock g 1 1]
+renderSBlock g      = color green $ pictures [renderBlock g 0 0, renderBlock g (-1) 0, renderBlock g 0 1, renderBlock g 1 1]
+renderZBlock g      = color red $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 0 1, renderBlock g (-1) 1]
 
 renderBlock g ox oy = 
   translate x' y' $ rectangleSolid (tileSize-1) (tileSize-1)
@@ -84,7 +84,9 @@ handleKeyPress g
  | (keyPress g) == South = moveBlock g (0, -tileSize)
  | otherwise = g
 
-updateBlock g = moveBlock g (0, -tileSize)
+updateBlock g
+ | ()
+ | moveBlock g (0, -tileSize)
 
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
