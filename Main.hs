@@ -72,9 +72,7 @@ handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { brickRotation = (br
 handleKeys _ g = g { keyPress = None }
 
 moveBlock g (x', y')
-  | y <= -290 = g
-  | x <= -190 = g
-  | x >= 190  = g
+  | y <= -290 || x <= -190 || x >= 190 = g
   | otherwise = g { brickPos = (x, y) }
   where (x, y) = brickPos g + (x', y')
 
@@ -84,8 +82,7 @@ handleKeyPress g
  | (keyPress g) == South = moveBlock g (0, -tileSize)
  | otherwise = g
 
-updateBlock g
- | moveBlock g (0, -tileSize)
+updateBlock g = moveBlock g (0, -tileSize)
 
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
