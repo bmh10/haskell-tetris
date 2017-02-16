@@ -40,7 +40,8 @@ initialState = Game
   } 
 
 render :: TetrisGame -> Picture 
-render g = pictures [renderBrick g]
+render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g]
+  where (x, y) = brickPos g
 
 renderBrick g
  | (brickType g) == LineBlock   = renderLineBlock g
@@ -86,6 +87,6 @@ updateBlock g = moveBlock g (0, -tileSize)
 
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
- = handleKeyPress $ updateBlock g
+ = g -- handleKeyPress $ updateBlock g
 
 main = play window background fps initialState render handleKeys update
