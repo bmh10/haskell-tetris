@@ -69,7 +69,7 @@ handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = handleKeyPress $ g { keyPress = West }
 handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = handleKeyPress $ g { keyPress = East }
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = handleKeyPress $ g { keyPress = South }
-handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { brickRotation = (brickRotation g) + 90 }
+handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { brickRotation = ((brickRotation g) + 90) `mod'` 360 }
 handleKeys _ g = g { keyPress = None }
 
 moveBlock g (x', y')
@@ -87,6 +87,6 @@ updateBlock g = moveBlock g (0, -tileSize)
 
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
- = g -- handleKeyPress $ updateBlock g
+ = handleKeyPress $ updateBlock g
 
 main = play window background fps initialState render handleKeys update
