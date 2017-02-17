@@ -79,10 +79,14 @@ handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { brickRotation = ((b
 handleKeys _ g = g { keyPress = None }
 
 moveBlock g (x', y')
-  | y <= -290 = g { brickPos = initialBrickPos }
+  | y <= -290 = createNewBlock g
   | x <= -190 || x >= 190 = g
   | otherwise = g { brickPos = (x, y) }
   where (x, y) = brickPos g + (x', y')
+
+createNewBlock g 
+  = g { brickPos = initialBrickPos, brickType = bt, gen = gen' }
+  where (bt, gen') = randomBlockType (gen g)
 
 handleKeyPress g
  | (keyPress g) == East  = moveBlock g (tileSize, 0)
