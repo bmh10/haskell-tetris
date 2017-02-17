@@ -15,6 +15,7 @@ tileSize = 20
 width = 400
 height = 600
 offset = 100
+initialBrickPos = (10, 200)
 window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
@@ -73,7 +74,8 @@ handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { brickRotation = ((b
 handleKeys _ g = g { keyPress = None }
 
 moveBlock g (x', y')
-  | y <= -290 || x <= -190 || x >= 190 = g
+  | y <= -290 = g { brickPos = initialBrickPos }
+  | x <= -190 || x >= 190 = g
   | otherwise = g { brickPos = (x, y) }
   where (x, y) = brickPos g + (x', y')
 
