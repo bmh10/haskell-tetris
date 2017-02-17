@@ -19,7 +19,7 @@ initialBrickPos = (10, 200)
 window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
-data BlockType = LineBlock | LBlock | TBlock | SBlock | ZBlock | SquareBlock deriving (Eq, Show)
+data BlockType = LineBlock | LBlock | TBlock | SBlock | ZBlock | SquareBlock deriving (Enum, Eq, Show, Bounded)
 data KeyPress  = South | East  | West | None deriving (Eq, Show)
 
 data TetrisGame = Game
@@ -27,18 +27,23 @@ data TetrisGame = Game
     brickPos :: (Float, Float),
     brickRotation :: Float,
     brickType :: BlockType,
-    keyPress :: KeyPress
-    --gen :: StdGen
+    keyPress :: KeyPress,
+    gen :: StdGen
   } deriving Show
 
-initialState :: TetrisGame
-initialState = Game
-  {
-    brickPos = (10, 200),
-    brickRotation = 0,
-    brickType = ZBlock,
-    keyPress = None
-  } 
+initGame = do
+  stdGen <- newStdGen
+  let initialState = Game {
+      brickPos = (10, 200),
+      brickRotation = 0,
+      brickType = ZBlock,
+      keyPress = None,
+      gen = stdGen
+    }
+  return initialState
+
+randomBlockType :: StdGen -> (BlockType, StdGen)
+randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (0,3) g
 
 render :: TetrisGame -> Picture 
 render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g]
@@ -91,4 +96,6 @@ update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
  = handleKeyPress $ updateBlock g
 
-main = play window background fps initialState render handleKeys update
+main = do
+  is <- initGame
+  play window background fps is render handleKeys update
