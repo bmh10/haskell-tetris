@@ -20,7 +20,7 @@ window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
 data BlockType = LineBlock | LBlock | TBlock | SBlock | ZBlock | SquareBlock deriving (Enum, Eq, Show, Bounded)
-data KeyPress  = South | East  | West | None deriving (Eq, Show)
+data KeyPress  = South | East | West | None deriving (Eq, Show)
 
 data TetrisGame = Game
   {
@@ -28,6 +28,7 @@ data TetrisGame = Game
     brickRotation :: Float,
     brickType :: BlockType,
     keyPress :: KeyPress,
+    score :: Int,
     gen :: StdGen
   } deriving Show
 
@@ -38,6 +39,7 @@ initGame = do
       brickRotation = 0,
       brickType = ZBlock,
       keyPress = None,
+      score = 0,
       gen = stdGen
     }
   return initialState
@@ -46,8 +48,11 @@ randomBlockType :: StdGen -> (BlockType, StdGen)
 randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (0,3) g
 
 render :: TetrisGame -> Picture 
-render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g]
+render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g, renderDashboard g]
   where (x, y) = brickPos g
+
+renderDashboard g = color white $ scale 0.1 0.1 $ text $ "Score: 0"
+  
 
 renderBrick g
  | (brickType g) == LineBlock   = renderLineBlock g
