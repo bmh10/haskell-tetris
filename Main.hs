@@ -51,7 +51,7 @@ render :: TetrisGame -> Picture
 render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g, renderDashboard g]
   where (x, y) = brickPos g
 
-renderDashboard g = color white $ scale 0.1 0.1 $ text $ "Score: 0"
+renderDashboard g = color white $ translate 100 0 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
   
 
 renderBrick g
