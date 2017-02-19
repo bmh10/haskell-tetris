@@ -34,19 +34,21 @@ data TetrisGame = Game
 
 initGame = do
   stdGen <- newStdGen
-  let (bt, gen') = randomBlockType stdGen
-  let initialState = Game {
-      brickPos = (10, 200),
+  let initialState = createNewBlock $ Game {
+      brickPos = initialBrickPos,
       brickRotation = 0,
-      brickType = bt,
+      brickType = LineBlock,
       keyPress = None,
       score = 0,
-      gen = gen'
+      gen = stdGen
     }
   return initialState
 
 randomBlockType :: StdGen -> (BlockType, StdGen)
 randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (0,3) g
+
+randomRotation :: StdGen -> (Int, StdGen)
+randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
 
 render :: TetrisGame -> Picture 
 render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g, renderDashboard g]
@@ -55,7 +57,7 @@ render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (
 renderDashboard g = pictures [scorePic, nextBlockPic]
   where
     scorePic = color white $ translate 100 50 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
-    nextBlockPic = color white $ translate 100 0 $ scale 0.1 0.1 $ text $ "Next block:"
+    nextBlockPic = color white $ translate 100 0 $ scale 0.1 0.1 $ text $ "Next block:" ++ (show $ brickRotation g)
   
 
 renderBrick g
@@ -95,8 +97,11 @@ moveBlock g (x', y')
   where (x, y) = brickPos g + (x', y')
 
 createNewBlock g 
-  = g { brickPos = initialBrickPos, brickType = bt, gen = gen' }
-  where (bt, gen') = randomBlockType (gen g)
+  = g { brickPos = initialBrickPos, brickType = bt, brickRotation = fromIntegral br, gen = gen'' }
+  where 
+    (bt, gen')  = randomBlockType (gen g)
+    (br, gen'') = randomRotation gen'
+
 
 handleKeyPress g
  | (keyPress g) == East  = moveBlock g (tileSize, 0)
