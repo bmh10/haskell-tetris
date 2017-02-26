@@ -37,9 +37,9 @@ data Block = Block
 data TetrisGame = Game
   {
     currentBlock :: Block,
-    brickPos :: (Float, Float),
-    brickRotation :: Float,
-    brickType :: BlockType,
+    --brickPos :: (Float, Float),
+    --brickRotation :: Float,
+    --brickType :: BlockType,
     keyPress :: KeyPress,
     score :: Int,
     gen :: StdGen
@@ -74,6 +74,17 @@ renderDashboard g = pictures [scorePic, nextBlockPic]
   
 
 renderBrick g
+ = renderTiles (tiles (currentBlock g))
+
+renderTiles (t:ts)
+  = pictures [renderTile t] ++ renderTiles ts
+
+renderTile t = 
+  translate x y $ rectangleSolid s s
+  where
+    (x, y) = (pos t)
+    s      = tileSize - 1
+
  | (brickType g) == LineBlock   = renderLineBlock g
  | (brickType g) == LBlock      = renderLBlock g
  | (brickType g) == TBlock      = renderTBlock g
