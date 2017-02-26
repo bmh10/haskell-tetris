@@ -22,8 +22,21 @@ background = black
 data BlockType = LineBlock | LBlock | TBlock | SBlock | ZBlock | SquareBlock deriving (Enum, Eq, Show, Bounded)
 data KeyPress  = South | East | West | None deriving (Eq, Show)
 
+data Tile = Tile
+  {
+    pos :: (Float, Float)
+  }
+
+data Block = Block
+  {
+    blockType :: BlockType,
+    rotation  :: Float,
+    tiles     :: [Tile]
+  }
+
 data TetrisGame = Game
   {
+    currentBlock :: Block,
     brickPos :: (Float, Float),
     brickRotation :: Float,
     brickType :: BlockType,
