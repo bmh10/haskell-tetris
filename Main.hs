@@ -47,6 +47,12 @@ data TetrisGame = Game
 
 initGame = do
   stdGen <- newStdGen
+  let initialTile = (5.0, 5.0)
+  let initialBlock = Block {
+    blockType = LBlock,
+    rotation = 0,
+    tiles = [initialTile]
+  }
   let initialState = createNewBlock $ Game {
       brickPos = initialBrickPos,
       brickRotation = 0,
@@ -85,12 +91,12 @@ renderTile t =
     (x, y) = (pos t)
     s      = tileSize - 1
 
- | (brickType g) == LineBlock   = renderLineBlock g
- | (brickType g) == LBlock      = renderLBlock g
- | (brickType g) == TBlock      = renderTBlock g
- | (brickType g) == SquareBlock = renderSquareBlock g
- | (brickType g) == SBlock      = renderSBlock g
- | (brickType g) == ZBlock      = renderZBlock g
+-- | (brickType g) == LineBlock   = renderLineBlock g
+-- | (brickType g) == LBlock      = renderLBlock g
+-- | (brickType g) == TBlock      = renderTBlock g
+-- | (brickType g) == SquareBlock = renderSquareBlock g
+-- | (brickType g) == SBlock      = renderSBlock g
+-- | (brickType g) == ZBlock      = renderZBlock g
 
 -- TODO: separate block definition for render code (so can do collision detection in update)
 renderLineBlock g   = color blue $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 3 0]
