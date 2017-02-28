@@ -27,12 +27,22 @@ data Tile = Tile
     pos :: (Float, Float)
   } deriving Show
 
+createTile x y = Tile { pos = (x, y) }
+
 data Block = Block
   {
     blockType :: BlockType,
+    col       :: Color,
     rotation  :: Float,
     tiles     :: [Tile]
   } deriving Show
+
+createBlock LineBlock r (x,y) = Block {
+  blockType = LineBlock,
+  col       = blue,
+  rotation  = r,
+  tiles     = [createTile x y, createTile (x+tileSize) y]
+}
 
 data TetrisGame = Game
   {
@@ -47,14 +57,7 @@ data TetrisGame = Game
 
 initGame = do
   stdGen <- newStdGen
-  let initialTile = Tile {
-   pos = (5.0, 5.0)
-  }
-  let initialBlock = Block {
-    blockType = LBlock,
-    rotation = 0,
-    tiles = [initialTile]
-  }
+  let initialBlock = createBlock LineBlock 0 (10, 10)
   let initialState = createNewBlock $ Game {
       currentBlock = initialBlock,
       --brickPos = initialBrickPos,
@@ -74,7 +77,7 @@ randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
 
 render :: TetrisGame -> Picture 
 --render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g, renderDashboard g]
-render g = pictures $ renderBrick g  -- renderDashboard g
+render g = pictures $ renderBlock g  -- renderDashboard g
   --where (x, y) = brickPos g
 
 renderDashboard g = pictures [scorePic, nextBlockPic]
@@ -83,14 +86,15 @@ renderDashboard g = pictures [scorePic, nextBlockPic]
     nextBlockPic = color white $ translate 100 0  $ scale 0.1 0.1 $ text $ "Next block:"
   
 
-renderBrick g
- = renderTiles (tiles (currentBlock g))
+renderBlock g
+ = renderTiles (tiles curBlock) (col curBlock)
+  where curBlock = (currentBlock g)
 
-renderTiles []     = []
-renderTiles (t:ts) = renderTile t : renderTiles ts
+renderTiles [] _     = []
+renderTiles (t:ts) c = renderTile t c : renderTiles ts c
 
-renderTile t = 
-  translate x y $ rectangleSolid s s
+renderTile t c = 
+  color c $ translate x y $ rectangleSolid s s
   where
     (x, y) = (pos t)
     s      = tileSize - 1
