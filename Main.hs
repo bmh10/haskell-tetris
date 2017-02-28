@@ -41,8 +41,11 @@ createBlock LineBlock r (x,y) = Block {
   blockType = LineBlock,
   col       = blue,
   rotation  = r,
-  tiles     = [createTile x y, createTile (x+tileSize) y]
+  tiles     = createBlockLine (x,y) 4
 }
+
+createBlockLine _ 0 = []
+createBlockLine (x,y) l = createTile x y : createBlockLine (x+tileSize,y) (l-1)
 
 data TetrisGame = Game
   {
