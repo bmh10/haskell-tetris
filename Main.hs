@@ -44,6 +44,19 @@ createBlock LineBlock r (x,y) = Block {
   tiles     = createBlockLine (x,y) 4
 }
 
+moveBlock g kp = moveTiles (tiles (currentBlock g)) kp
+
+moveTiles ts kp = map (moveTile kp) ts
+
+moveTile kp t = t { pos = (x, y) }
+  where (x,y) = (pos t) + (func kp)
+
+func kp 
+ | kp == South = (0, -tileSize)
+ | kp == East  = (tileSize, 0)
+ | kp == West  = (-tileSize, 0)
+ | kp == None  = (0, -tileSize)
+
 createBlockLine _ 0 = []
 createBlockLine (x,y) l = createTile x y : createBlockLine (x+tileSize,y) (l-1)
 
@@ -131,7 +144,7 @@ handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = handleKeyPress $ g { ke
 handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g --{ brickRotation = ((brickRotation g) + 90) `mod'` 360 }
 handleKeys _ g = g { keyPress = None }
 
-moveBlock g (x', y') = g
+--moveBlock g (x', y') = g
 --  | y <= -290 = createNewBlock g
 --  | x <= -190 || x >= 190 = g
 --  | otherwise = g --{ brickPos = (x, y) }
@@ -144,11 +157,7 @@ createNewBlock g
     (br, gen'') = randomRotation gen'
 
 
-handleKeyPress g
- | (keyPress g) == East  = moveBlock g (tileSize, 0)
- | (keyPress g) == West  = moveBlock g (-tileSize, 0)
- | (keyPress g) == South = moveBlock g (0, -tileSize)
- | otherwise = g
+handleKeyPress g = moveBlock g (keyPress g)
 
 updateBlock g = moveBlock g (0, -tileSize)
 
