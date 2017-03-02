@@ -53,9 +53,9 @@ moveBlock g kp = g { currentBlock = b { tiles = ts } }
 moveTiles ts kp = map (moveTile kp) ts
 
 moveTile kp t = t { pos = (x, y) }
-  where (x,y) = (pos t) + (func kp)
+  where (x,y) = (pos t) + (keypressToDir kp)
 
-func kp 
+keypressToDir kp 
  | kp == South = (0, -tileSize)
  | kp == East  = (tileSize, 0)
  | kp == West  = (-tileSize, 0)
@@ -67,9 +67,6 @@ createBlockLine (x,y) l = createTile x y : createBlockLine (x+tileSize,y) (l-1)
 data TetrisGame = Game
   {
     currentBlock :: Block,
-    --brickPos :: (Float, Float),
-    --brickRotation :: Float,
-    --brickType :: BlockType,
     keyPress :: KeyPress,
     score :: Int,
     gen :: StdGen
@@ -80,10 +77,6 @@ initGame = do
   let initialBlock = createBlock LineBlock 0 (10, 10)
   let initialState = createNewBlock $ Game {
       currentBlock = initialBlock,
-      --brickPos = initialBrickPos,
-      --brickRotation = 0,
-      --brickType = LineBlock,
-      keyPress = None,
       score = 0,
       gen = stdGen
     }
@@ -133,13 +126,6 @@ renderTile t c =
 --renderSquareBlock g = color rose $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 0 1, renderBlock g 1 1]
 --renderSBlock g      = color green $ pictures [renderBlock g 0 0, renderBlock g (-1) 0, renderBlock g 0 1, renderBlock g 1 1]
 --renderZBlock g      = color red $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 0 1, renderBlock g (-1) 1]
-
---renderBlock g ox oy = 
---  translate x' y' $ rectangleSolid (tileSize-1) (tileSize-1)
---  where
---    (x, y) = brickPos g
---    x' = x + ox*tileSize
---    y' = y + oy*tileSize
 
 handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = handleKeyPress $ g { keyPress = West }
