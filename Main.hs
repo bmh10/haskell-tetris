@@ -44,7 +44,11 @@ createBlock LineBlock r (x,y) = Block {
   tiles     = createBlockLine (x,y) 4
 }
 
-moveBlock g kp = moveTiles (tiles (currentBlock g)) kp
+moveBlock :: TetrisGame -> KeyPress -> TetrisGame
+moveBlock g kp = g { currentBlock = b { tiles = ts } }
+  where 
+    b = currentBlock g
+    ts = moveTiles (tiles b) kp
 
 moveTiles ts kp = map (moveTile kp) ts
 
@@ -159,11 +163,9 @@ createNewBlock g
 
 handleKeyPress g = moveBlock g (keyPress g)
 
-updateBlock g = moveBlock g (0, -tileSize)
-
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
- = handleKeyPress $ updateBlock g
+ = handleKeyPress g
 
 main = do
   is <- initGame
