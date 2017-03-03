@@ -90,7 +90,7 @@ randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
 
 render :: TetrisGame -> Picture 
 --render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g, renderDashboard g]
-render g = pictures $ renderBlock g  -- renderDashboard g
+render g = pictures $ (renderDashboard g) : (renderBlock g)
   --where (x, y) = brickPos g
 
 renderDashboard g = pictures [scorePic, nextBlockPic]
