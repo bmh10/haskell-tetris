@@ -41,8 +41,9 @@ createBlock LineBlock r (x,y) = Block {
   blockType = LineBlock,
   col       = blue,
   rotation  = r,
-  tiles     = createBlockLine (x,y) 4
+  tiles     = createBlockLine (x,y) (tileSize, 0) 4
 }
+  where (x',y') = if (r `mod'` 90 == 0) then (tileSize, 0) else (0, tileSize)
 
 moveBlock :: TetrisGame -> KeyPress -> TetrisGame
 moveBlock g kp 
@@ -66,8 +67,8 @@ keypressToDir kp
 hasBlockLanded b = any hasTileLanded (tiles b)
 hasTileLanded t = y <= -290 where (x, y) = pos t
 
-createBlockLine _ 0 = []
-createBlockLine (x,y) l = createTile x y : createBlockLine (x+tileSize,y) (l-1)
+createBlockLine _ _ 0 = []
+createBlockLine (x,y) (x',y') l = createTile x y : createBlockLine (x+x',y+y') (x',y') (l-1)
 
 data TetrisGame = Game
   {
@@ -136,9 +137,11 @@ handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = handleKeyPress $ g { keyPress = West }
 handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = handleKeyPress $ g { keyPress = East }
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = handleKeyPress $ g { keyPress = South }
-handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g --{ brickRotation = ((brickRotation g) + 90) `mod'` 360 }
+handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { currentBlock = rotateBlock (currentBlock g) }
 handleKeys _ g = g { keyPress = None }
 
+rotateBlock b =
+  b { rotation = ((rotation b) + 90) `mod'` 360 }
 --moveBlock g (x', y') = g
 --  | y <= -290 = createNewBlock g
 --  | x <= -190 || x >= 190 = g
