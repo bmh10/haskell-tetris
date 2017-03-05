@@ -62,7 +62,7 @@ keypressToDir kp
  | kp == South = (0, -tileSize)
  | kp == East  = (tileSize, 0)
  | kp == West  = (-tileSize, 0)
- | kp == None  = (0, -tileSize)
+ | kp == None  = (0, 0)
 
 hasBlockLanded b = any hasTileLanded (tiles b)
 hasTileLanded t = y <= -290 where (x, y) = pos t
@@ -155,11 +155,12 @@ createNewBlock g
     (br, gen'') = randomRotation gen'
 
 
-handleKeyPress g = moveBlock g (keyPress g)
-
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
- = handleKeyPress g
+ = updateCurrentBlock $ handleKeyPress g
+
+handleKeyPress g = moveBlock g (keyPress g)
+updateCurrentBlock g = moveBlock g South
 
 main = do
   is <- initGame
