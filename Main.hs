@@ -15,7 +15,7 @@ tileSize = 20
 width = 400
 height = 600
 offset = 100
-initialBrickPos = (10, 200)
+initialBrickPos = (10, 210)
 window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
@@ -80,7 +80,7 @@ data TetrisGame = Game
 
 initGame = do
   stdGen <- newStdGen
-  let initialBlock = createBlock LineBlock 0 (10, 10)
+  let initialBlock = createBlock LineBlock 0 initialBrickPos
   let initialState = createNewBlock $ Game {
       currentBlock = initialBlock,
       score = 0,
@@ -160,7 +160,10 @@ update seconds g
  = updateCurrentBlock $ handleKeyPress g
 
 handleKeyPress g = moveBlock g (keyPress g)
-updateCurrentBlock g = moveBlock g South
+updateCurrentBlock g
+ | hasBlockLanded (currentBlock g) = g { currentBlock = createBlock LineBlock 0 initialBrickPos }
+ | otherwise = moveBlock g South
+
 
 main = do
   is <- initGame
