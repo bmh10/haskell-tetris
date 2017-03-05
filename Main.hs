@@ -37,13 +37,16 @@ data Block = Block
     tiles     :: [Tile]
   } deriving Show
 
+-- TODO: pos hask
+recreateBlock b = createBlock (blockType b) (rotation b) (pos ((tiles b)!!0))
+
 createBlock LineBlock r (x,y) = Block {
   blockType = LineBlock,
   col       = blue,
   rotation  = r,
-  tiles     = createBlockLine (x,y) (tileSize, 0) 4
+  tiles     = createBlockLine (x,y) (x', y') 4
 }
-  where (x',y') = if (r `mod'` 90 == 0) then (tileSize, 0) else (0, tileSize)
+  where (x',y') = if (r `mod'` 180 == 0) then (tileSize, 0) else (0, tileSize)
 
 moveBlock :: TetrisGame -> KeyPress -> TetrisGame
 moveBlock g kp 
@@ -108,7 +111,7 @@ render g = pictures $ (renderDashboard g) : (renderBlock g)
 renderDashboard g = pictures [scorePic, nextBlockPic]
   where
     scorePic     = color white $ translate 100 50 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
-    nextBlockPic = color white $ translate 100 0  $ scale 0.1 0.1 $ text $ "Next block:"
+    nextBlockPic = color white $ translate 100 0  $ scale 0.1 0.1 $ text $ "Rotation:" ++ (show $ rotation (currentBlock g))
   
 
 renderBlock g
@@ -147,7 +150,7 @@ handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { currentBlock = rota
 handleKeys _ g = g { keyPress = None }
 
 rotateBlock b =
-  b { rotation = ((rotation b) + 90) `mod'` 360 }
+  recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
 --moveBlock g (x', y') = g
 --  | y <= -290 = createNewBlock g
 --  | x <= -190 || x >= 190 = g
