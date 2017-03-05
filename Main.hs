@@ -47,7 +47,7 @@ createBlock LineBlock r (x,y) = Block {
 
 moveBlock :: TetrisGame -> KeyPress -> TetrisGame
 moveBlock g kp 
- | hasBlockLanded b = g
+ | (hasBlockLanded b) || (hasBlockHitLeftSide b && kp == West) || (hasBlockHitRightSide b && kp == East) = g
  | otherwise = g { currentBlock = b { tiles = ts } }
   where 
     b = currentBlock g
@@ -66,6 +66,12 @@ keypressToDir kp
 
 hasBlockLanded b = any hasTileLanded (tiles b)
 hasTileLanded t = y <= -290 where (x, y) = pos t
+
+hasBlockHitLeftSide b = any hasTileHitLeftSide (tiles b)
+hasTileHitLeftSide t = (x <= -180) where (x, y) = pos t
+
+hasBlockHitRightSide b = any hasTileHitRightSide (tiles b)
+hasTileHitRightSide t = (x >= 180) where (x, y) = pos t
 
 createBlockLine _ _ 0 = []
 createBlockLine (x,y) (x',y') l = createTile x y : createBlockLine (x+x',y+y') (x',y') (l-1)
