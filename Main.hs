@@ -3,7 +3,7 @@ module Main where
 import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game
-import System.IO  
+import System.IO
 import System.Random
 import Control.Monad
 import Data.Fixed
@@ -108,8 +108,11 @@ randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
 
 render :: TetrisGame -> Picture 
 --render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g, renderDashboard g]
-render g = pictures $ (renderDashboard g) : (renderBlock g)
+render g = pictures [renderDashboard g, renderBlocks g]
   --where (x, y) = brickPos g
+
+renderBlocks :: TetrisGame -> Picture
+renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (landedBlocks g))
 
 renderDashboard g = pictures [scorePic, nextBlockPic, landedBlockPic]
   where
@@ -117,10 +120,8 @@ renderDashboard g = pictures [scorePic, nextBlockPic, landedBlockPic]
     nextBlockPic = color white $ translate 100 0  $ scale 0.1 0.1 $ text $ "Rotation:" ++ (show $ rotation (currentBlock g))
     landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
   
-
-renderBlock g
- = renderTiles (tiles curBlock) (col curBlock)
-  where curBlock = (currentBlock g)
+renderBlock :: Block -> Picture
+renderBlock b = pictures $ renderTiles (tiles b) (col b)
 
 renderTiles [] _     = []
 renderTiles (t:ts) c = renderTile t c : renderTiles ts c
