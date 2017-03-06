@@ -19,7 +19,8 @@ initialBrickPos = (10, 210)
 window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
-data BlockType = LineBlock | LBlock | TBlock | SBlock | ZBlock | SquareBlock deriving (Enum, Eq, Show, Bounded)
+data BlockType = LineBlock | SquareBlock -- | LBlock | TBlock | SBlock | ZBlock 
+                 deriving (Enum, Eq, Show, Bounded)
 data KeyPress  = South | East | West | None deriving (Eq, Show)
 
 data Tile = Tile
@@ -37,16 +38,35 @@ data Block = Block
     tiles     :: [Tile]
   } deriving Show
 
--- TODO: pos hask
+-- TODO: pos hack
 recreateBlock b = createBlock (blockType b) (rotation b) (pos ((tiles b)!!0))
 
-createBlock LineBlock r (x,y) = Block {
-  blockType = LineBlock,
-  col       = blue,
+randomBlock :: StdGen -> (Float, Float) -> (Block, StdGen)
+randomBlock gen pos = (createBlock t (fromIntegral r) pos, gen'')
+  where 
+    (t, gen')  = randomBlockType gen
+    (r, gen'') = randomRotation  gen'   
+
+createBlock t r pos = Block {
+  blockType = t,
+  col       = getBlockColor t,
   rotation  = r,
-  tiles     = createBlockLine (x,y) (x', y') 4
+  tiles     = getBlockTiles t r pos
 }
-  where (x',y') = if (r `mod'` 180 == 0) then (tileSize, 0) else (0, tileSize)
+
+getBlockColor :: BlockType -> Color
+getBlockColor LineBlock = blue
+getBlockColor SquareBlock = yellow
+
+getBlockTiles :: BlockType -> Float -> (Float, Float) -> [Tile]
+getBlockTiles LineBlock r pos     = createBlockLine pos offset 4 where offset = if (r `mod'` 180 == 0) then (tileSize, 0) else (0, tileSize)
+getBlockTiles SquareBlock r (x,y) = createBlockLine (x,y) (tileSize, 0) 2 ++ createBlockLine (x,y+tileSize) (tileSize, 0) 2 
+
+randomBlockType :: StdGen -> (BlockType, StdGen)
+randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (0,1) g
+
+randomRotation :: StdGen -> (Int, StdGen)
+randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
 
 moveBlock :: TetrisGame -> KeyPress -> TetrisGame
 moveBlock g kp 
@@ -76,6 +96,7 @@ hasTileHitLeftSide t = (x <= -180) where (x, y) = pos t
 hasBlockHitRightSide b = any hasTileHitRightSide (tiles b)
 hasTileHitRightSide t = (x >= 180) where (x, y) = pos t
 
+createBlockLine :: (Float, Float) -> (Float, Float) -> Int -> [Tile]
 createBlockLine _ _ 0 = []
 createBlockLine (x,y) (x',y') l = createTile x y : createBlockLine (x+x',y+y') (x',y') (l-1)
 
@@ -90,21 +111,15 @@ data TetrisGame = Game
 
 initGame = do
   stdGen <- newStdGen
-  let initialBlock = createBlock LineBlock 0 initialBrickPos
-  let initialState = createNewBlock $ Game {
+  let (initialBlock, gen') = randomBlock stdGen initialBrickPos
+  let initialState = Game {
       currentBlock = initialBlock,
       landedBlocks = [],
       keyPress = None,
       score = 0,
-      gen = stdGen
+      gen = gen'
     }
   return initialState
-
-randomBlockType :: StdGen -> (BlockType, StdGen)
-randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (0,3) g
-
-randomRotation :: StdGen -> (Int, StdGen)
-randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
 
 render :: TetrisGame -> Picture 
 --render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g, renderDashboard g]
@@ -162,11 +177,11 @@ rotateBlock b =
 --  | otherwise = g --{ brickPos = (x, y) }
 --  where (x, y) = brickPos g + (x', y')
 
-createNewBlock g 
-  = g -- { brickPos = initialBrickPos, brickType = bt, brickRotation = fromIntegral br, gen = gen'' }
-  where 
-    (bt, gen')  = randomBlockType (gen g)
-    (br, gen'') = randomRotation gen'
+--createNewBlock g 
+--  = g -- { brickPos = initialBrickPos, brickType = bt, brickRotation = fromIntegral br, gen = gen'' }
+--  where 
+--    (bt, gen')  = randomBlockType (gen g)
+--    (br, gen'') = randomRotation gen'
 
 
 update :: Float -> TetrisGame -> TetrisGame
@@ -175,8 +190,11 @@ update seconds g
 
 handleKeyPress g = moveBlock g (keyPress g)
 updateCurrentBlock g
- | hasBlockLanded (currentBlock g) = g { landedBlocks = (currentBlock g) : (landedBlocks g), currentBlock = createBlock LineBlock 0 initialBrickPos }
+ | hasBlockLanded (currentBlock g) = g { landedBlocks = (currentBlock g) : (landedBlocks g), 
+                                         currentBlock = randBlock,
+                                         gen = gen' }
  | otherwise = moveBlock g South
+  where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
 
 main = do
