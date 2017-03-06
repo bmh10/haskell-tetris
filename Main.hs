@@ -82,6 +82,7 @@ createBlockLine (x,y) (x',y') l = createTile x y : createBlockLine (x+x',y+y') (
 data TetrisGame = Game
   {
     currentBlock :: Block,
+    landedBlocks :: [Block],
     keyPress :: KeyPress,
     score :: Int,
     gen :: StdGen
@@ -92,6 +93,8 @@ initGame = do
   let initialBlock = createBlock LineBlock 0 initialBrickPos
   let initialState = createNewBlock $ Game {
       currentBlock = initialBlock,
+      landedBlocks = [],
+      keyPress = None,
       score = 0,
       gen = stdGen
     }
@@ -108,10 +111,11 @@ render :: TetrisGame -> Picture
 render g = pictures $ (renderDashboard g) : (renderBlock g)
   --where (x, y) = brickPos g
 
-renderDashboard g = pictures [scorePic, nextBlockPic]
+renderDashboard g = pictures [scorePic, nextBlockPic, landedBlockPic]
   where
     scorePic     = color white $ translate 100 50 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
     nextBlockPic = color white $ translate 100 0  $ scale 0.1 0.1 $ text $ "Rotation:" ++ (show $ rotation (currentBlock g))
+    landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
   
 
 renderBlock g
@@ -170,7 +174,7 @@ update seconds g
 
 handleKeyPress g = moveBlock g (keyPress g)
 updateCurrentBlock g
- | hasBlockLanded (currentBlock g) = g { currentBlock = createBlock LineBlock 0 initialBrickPos }
+ | hasBlockLanded (currentBlock g) = g { landedBlocks = (currentBlock g) : (landedBlocks g), currentBlock = createBlock LineBlock 0 initialBrickPos }
  | otherwise = moveBlock g South
 
 
