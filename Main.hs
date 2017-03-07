@@ -87,6 +87,10 @@ keypressToDir kp
  | kp == West  = (-tileSize, 0)
  | kp == None  = (0, 0)
 
+hasBlockHitAnotherBlock g = any (hasTileHitAnotherBlock (landedBlocks g)) (tiles (currentBlock g))
+hasTileHitAnotherBlock bs t = any (hasTileHitAnotherTile t) bs
+hasTileHitAnotherTile t t' = False
+
 hasBlockLanded b = any hasTileLanded (tiles b)
 hasTileLanded t = y <= -290 where (x, y) = pos t
 
