@@ -70,7 +70,7 @@ randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
 
 moveBlock :: TetrisGame -> KeyPress -> TetrisGame
 moveBlock g kp 
- | (hasBlockLanded b) || (hasBlockHitLeftSide b && kp == West) || (hasBlockHitRightSide b && kp == East) = g
+ | (hasBlockLanded g) || (hasBlockHitLeftSide b && kp == West) || (hasBlockHitRightSide b && kp == East) = g
  | otherwise = g { currentBlock = b { tiles = ts } }
   where 
     b = currentBlock g
@@ -87,12 +87,16 @@ keypressToDir kp
  | kp == West  = (-tileSize, 0)
  | kp == None  = (0, 0)
 
-hasBlockHitAnotherBlock g = any (hasTileHitAnotherBlock (landedBlocks g)) (tiles (currentBlock g))
-hasTileHitAnotherBlock bs t = any (hasTileHitAnotherTile t) bs
-hasTileHitAnotherTile t t' = False
+hasBlockCollided g = any (hasBlockHitAnotherBlock (currentBlock g)) (landedBlocks g)
+hasBlockHitAnotherBlock cb lb = any (hasTileHitAnotherTile (tiles cb)) (tiles lb)
+hasTileHitAnotherTile cb_ts lb_t = any (hasTileHitTile lb_t) cb_ts
+-- TODO: doesn't take into account side collisions yet
+hasTileHitTile lb_t cb_t = y+tileSize == y'
+  where (x,  y ) = (pos lb_t)
+        (x', y') = (pos cb_t)
 
-hasBlockLanded b = any hasTileLanded (tiles b)
-hasTileLanded t = y <= -290 where (x, y) = pos t
+hasBlockLanded g = any hasTileLanded (tiles (currentBlock g)) || hasBlockCollided g
+hasTileLanded t  = y <= -290 where (x, y) = pos t
 
 hasBlockHitLeftSide b = any hasTileHitLeftSide (tiles b)
 hasTileHitLeftSide t = (x <= -180) where (x, y) = pos t
@@ -194,7 +198,7 @@ update seconds g
 
 handleKeyPress g = moveBlock g (keyPress g)
 updateCurrentBlock g
- | hasBlockLanded (currentBlock g) = g { landedBlocks = (currentBlock g) : (landedBlocks g), 
+ | hasBlockLanded g = g { landedBlocks = (currentBlock g) : (landedBlocks g), 
                                          currentBlock = randBlock,
                                          gen = gen' }
  | otherwise = moveBlock g South
