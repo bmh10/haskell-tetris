@@ -91,7 +91,7 @@ hasBlockCollided g = any (hasBlockHitAnotherBlock (currentBlock g)) (landedBlock
 hasBlockHitAnotherBlock cb lb = any (hasTileHitAnotherTile (tiles cb)) (tiles lb)
 hasTileHitAnotherTile cb_ts lb_t = any (hasTileHitTile lb_t) cb_ts
 -- TODO: doesn't take into account side collisions yet
-hasTileHitTile lb_t cb_t = y+tileSize == y'
+hasTileHitTile lb_t cb_t = y+tileSize == y' && x == x'
   where (x,  y ) = (pos lb_t)
         (x', y') = (pos cb_t)
 
