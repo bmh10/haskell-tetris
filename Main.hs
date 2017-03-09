@@ -87,28 +87,23 @@ keypressToDir kp
  | kp == West  = (-tileSize, 0)
  | kp == None  = (0, 0)
 
-hasBlockCollidedSides g left = any (hasBlockHitAnotherBlockSides left (currentBlock g)) (landedBlocks g)
-hasBlockHitAnotherBlockSides left cb lb = any (hasTileHitAnotherTileSides left (tiles cb)) (tiles lb)
-hasTileHitAnotherTileSides left cb_ts lb_t = any (hasTileHitTileSides left lb_t) cb_ts
-hasTileHitTileSides left lb_t cb_t = y == y' && sideCollision
+hasBlockCollided g kp = any (hasBlockHitAnotherBlock kp (currentBlock g)) (landedBlocks g)
+hasBlockHitAnotherBlock kp cb lb = any (hasTileHitAnotherTile kp (tiles cb)) (tiles lb)
+hasTileHitAnotherTile kp cb_ts lb_t = any (hasTileHitTile kp lb_t) cb_ts
+hasTileHitTile kp lb_t cb_t = isCollision kp
   where (x,  y ) = (pos lb_t)
         (x', y') = (pos cb_t)
-        sideCollision = if left then (x+tileSize == x') else (x-tileSize == x')
+        isCollision West  = y == y' && x+tileSize == x'
+        isCollision East  = y == y' && x-tileSize == x'
+	isCollision South = x == x' && y+tileSize == y'
 
-hasBlockCollidedBottom g = any (hasBlockHitAnotherBlockBottom (currentBlock g)) (landedBlocks g)
-hasBlockHitAnotherBlockBottom cb lb = any (hasTileHitAnotherTileBottom (tiles cb)) (tiles lb)
-hasTileHitAnotherTileBottom cb_ts lb_t = any (hasTileHitTileBottom lb_t) cb_ts
-hasTileHitTileBottom lb_t cb_t = y+tileSize == y' && x == x'
-  where (x,  y ) = (pos lb_t)
-        (x', y') = (pos cb_t)
-
-hasBlockLanded g = any hasTileLanded (tiles (currentBlock g)) || hasBlockCollidedBottom g
+hasBlockLanded g = any hasTileLanded (tiles (currentBlock g)) || hasBlockCollided g South
 hasTileLanded t  = y <= -290 where (x, y) = pos t
 
-hasBlockHitLeftSide g = any hasTileHitLeftSide (tiles (currentBlock g)) || hasBlockCollidedSides g True
+hasBlockHitLeftSide g = any hasTileHitLeftSide (tiles (currentBlock g)) || hasBlockCollided g West
 hasTileHitLeftSide t = (x <= -180) where (x, y) = pos t
 
-hasBlockHitRightSide g = any hasTileHitRightSide (tiles (currentBlock g)) || hasBlockCollidedSides g False
+hasBlockHitRightSide g = any hasTileHitRightSide (tiles (currentBlock g)) || hasBlockCollided g East
 hasTileHitRightSide t = (x >= 180) where (x, y) = pos t
 
 createBlockLine :: (Float, Float) -> (Float, Float) -> Int -> [Tile]
