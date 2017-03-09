@@ -70,7 +70,7 @@ randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
 
 moveBlock :: TetrisGame -> KeyPress -> TetrisGame
 moveBlock g kp 
- | (hasBlockLanded g) || (hasBlockHitLeftSide b && kp == West) || (hasBlockHitRightSide b && kp == East) = g
+ | (hasBlockLanded g) || (hasBlockHitLeftSide g && kp == West) || (hasBlockHitRightSide g && kp == East) = g
  | otherwise = g { currentBlock = b { tiles = ts } }
   where 
     b = currentBlock g
@@ -87,21 +87,28 @@ keypressToDir kp
  | kp == West  = (-tileSize, 0)
  | kp == None  = (0, 0)
 
-hasBlockCollided g = any (hasBlockHitAnotherBlock (currentBlock g)) (landedBlocks g)
-hasBlockHitAnotherBlock cb lb = any (hasTileHitAnotherTile (tiles cb)) (tiles lb)
-hasTileHitAnotherTile cb_ts lb_t = any (hasTileHitTile lb_t) cb_ts
--- TODO: doesn't take into account side collisions yet
-hasTileHitTile lb_t cb_t = y+tileSize == y' && x == x'
+hasBlockCollidedSides g left = any (hasBlockHitAnotherBlockSides left (currentBlock g)) (landedBlocks g)
+hasBlockHitAnotherBlockSides left cb lb = any (hasTileHitAnotherTileSides left (tiles cb)) (tiles lb)
+hasTileHitAnotherTileSides left cb_ts lb_t = any (hasTileHitTileSides left lb_t) cb_ts
+hasTileHitTileSides left lb_t cb_t = y == y' && sideCollision
+  where (x,  y ) = (pos lb_t)
+        (x', y') = (pos cb_t)
+        sideCollision = if left then (x+tileSize == x') else (x-tileSize == x')
+
+hasBlockCollidedBottom g = any (hasBlockHitAnotherBlockBottom (currentBlock g)) (landedBlocks g)
+hasBlockHitAnotherBlockBottom cb lb = any (hasTileHitAnotherTileBottom (tiles cb)) (tiles lb)
+hasTileHitAnotherTileBottom cb_ts lb_t = any (hasTileHitTileBottom lb_t) cb_ts
+hasTileHitTileBottom lb_t cb_t = y+tileSize == y' && x == x'
   where (x,  y ) = (pos lb_t)
         (x', y') = (pos cb_t)
 
-hasBlockLanded g = any hasTileLanded (tiles (currentBlock g)) || hasBlockCollided g
+hasBlockLanded g = any hasTileLanded (tiles (currentBlock g)) || hasBlockCollidedBottom g
 hasTileLanded t  = y <= -290 where (x, y) = pos t
 
-hasBlockHitLeftSide b = any hasTileHitLeftSide (tiles b)
+hasBlockHitLeftSide g = any hasTileHitLeftSide (tiles (currentBlock g)) || hasBlockCollidedSides g True
 hasTileHitLeftSide t = (x <= -180) where (x, y) = pos t
 
-hasBlockHitRightSide b = any hasTileHitRightSide (tiles b)
+hasBlockHitRightSide g = any hasTileHitRightSide (tiles (currentBlock g)) || hasBlockCollidedSides g False
 hasTileHitRightSide t = (x >= 180) where (x, y) = pos t
 
 createBlockLine :: (Float, Float) -> (Float, Float) -> Int -> [Tile]
