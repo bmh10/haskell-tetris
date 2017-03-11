@@ -177,21 +177,6 @@ renderTile t c =
     (x, y) = (pos t)
     s      = tileSize - 1
 
--- | (brickType g) == LineBlock   = renderLineBlock g
--- | (brickType g) == LBlock      = renderLBlock g
--- | (brickType g) == TBlock      = renderTBlock g
--- | (brickType g) == SquareBlock = renderSquareBlock g
--- | (brickType g) == SBlock      = renderSBlock g
--- | (brickType g) == ZBlock      = renderZBlock g
-
--- TODO: separate block definition for render code (so can do collision detection in update)
---renderLineBlock g   = color blue $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 3 0]
---renderLBlock g      = color (light blue) $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 2 1]
---renderTBlock g      = color (light yellow) $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 2 0, renderBlock g 1 1]
---renderSquareBlock g = color rose $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 0 1, renderBlock g 1 1]
---renderSBlock g      = color green $ pictures [renderBlock g 0 0, renderBlock g (-1) 0, renderBlock g 0 1, renderBlock g 1 1]
---renderZBlock g      = color red $ pictures [renderBlock g 0 0, renderBlock g 1 0, renderBlock g 0 1, renderBlock g (-1) 1]
-
 handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = handleKeyPress $ g { keyPress = West }
 handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = handleKeyPress $ g { keyPress = East }
@@ -201,11 +186,6 @@ handleKeys _ g = g { keyPress = None }
 
 rotateBlock b =
   recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
---moveBlock g (x', y') = g
---  | y <= -290 = createNewBlock g
---  | x <= -190 || x >= 190 = g
---  | otherwise = g --{ brickPos = (x, y) }
---  where (x, y) = brickPos g + (x', y')
 
 --createNewBlock g 
 --  = g -- { brickPos = initialBrickPos, brickType = bt, brickRotation = fromIntegral br, gen = gen'' }
