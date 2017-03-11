@@ -72,7 +72,9 @@ getBlockTiles TBlock r (x,y) = createBlockLine (x,y) offset 3 ++ [createTile (f 
   where offset = if (r `mod'` 180 == 0) then (tileSize, 0) else (0, tileSize)
         f p r ex = if r == ex then p-tileSize else p+tileSize
 
-getBlockTiles SBlock r (x,y) = createBlockLine (x,y) (tileSize, 0) 2 ++ createBlockLine (x+tileSize, y+tileSize) (tileSize, 0) 2  
+getBlockTiles SBlock r (x,y)
+ | r `mod'` 180 == 0 = createBlockLine (x,y) (tileSize, 0) 2 ++ createBlockLine (x+tileSize, y+tileSize) (tileSize, 0) 2
+ | otherwise         = createBlockLine (x,y) (0, tileSize) 2 ++ createBlockLine (x+tileSize, y-tileSize) (0, tileSize) 2
 
 randomBlockType :: StdGen -> (BlockType, StdGen)
 randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (4,4) g
