@@ -129,6 +129,7 @@ createBlockLine :: (Float, Float) -> (Float, Float) -> Int -> [Tile]
 createBlockLine _ _ 0 = []
 createBlockLine (x,y) (x',y') l = createTile x y : createBlockLine (x+x',y+y') (x',y') (l-1)
 
+
 data TetrisGame = Game
   {
     currentBlock :: Block,
@@ -215,9 +216,10 @@ rotateBlock b =
 
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
- = updateCurrentBlock $ handleKeyPress g
+ = checkCompletedLines $ updateCurrentBlock $ handleKeyPress g
 
 handleKeyPress g = moveBlock g (keyPress g)
+
 updateCurrentBlock g
  | hasBlockLanded g = g { landedBlocks = (currentBlock g) : (landedBlocks g), 
                                          currentBlock = randBlock,
@@ -225,6 +227,8 @@ updateCurrentBlock g
  | otherwise = moveBlock g South
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
+-- TODO
+checkCompletedLines g = g { score = (score g) + 1 }
 
 main = do
   is <- initGame
