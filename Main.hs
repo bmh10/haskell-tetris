@@ -62,14 +62,9 @@ getBlockColor LBlock = red
 getBlockTiles :: BlockType -> Float -> (Float, Float) -> [Tile]
 getBlockTiles LineBlock r pos     = createBlockLine pos offset 4 where offset = if (r `mod'` 180 == 0) then (tileSize, 0) else (0, tileSize)
 getBlockTiles SquareBlock r (x,y) = createBlockLine (x,y) (tileSize, 0) 2 ++ createBlockLine (x,y+tileSize) (tileSize, 0) 2 
-getBlockTiles LBlock r (x,y)
- | r == 0   = l ++ [createTile (fx r) y]
- | r == 90  = l ++ [createTile (fx r) (y-tileSize)]
- | r == 180 = l ++ [createTile (fx r) (y+2*tileSize)]
- | r == 270 = l ++ [createTile (fx r) (y+tileSize)] 
+getBlockTiles LBlock r (x,y) = createBlockLine (x,y) offset 3 ++ [createTile (f x r 90) (f y r 180)]
   where offset = if (r `mod'` 180 == 0) then (0, tileSize) else (tileSize, 0)
-        l      = createBlockLine (x,y) offset 3
-        fx r = x + (2 - (((r+90) `mod'` 360) / 90))*tileSize
+        f p r o = p + (2 - (((r+o) `mod'` 360) / 90))*tileSize
 
 randomBlockType :: StdGen -> (BlockType, StdGen)
 randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (2,2) g
