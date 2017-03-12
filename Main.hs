@@ -19,7 +19,7 @@ initialBrickPos = (10, 210)
 window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
-data BlockType = LineBlock | SquareBlock | LBlock | TBlock | SBlock | ZBlock 
+data BlockType = LineBlock | SquareBlock | LBlock | JBlock | TBlock | SBlock | ZBlock 
                  deriving (Enum, Eq, Show, Bounded)
 data KeyPress  = South | East | West | None deriving (Eq, Show)
 
@@ -58,6 +58,7 @@ getBlockColor :: BlockType -> Color
 getBlockColor LineBlock = blue
 getBlockColor SquareBlock = yellow
 getBlockColor LBlock = red
+getBlockColor JBlock = dark $ green
 getBlockColor TBlock = green
 getBlockColor SBlock = orange
 getBlockColor ZBlock = dark $ red
@@ -68,6 +69,10 @@ getBlockTiles SquareBlock r (x,y) = createBlockLine (x,y) (tileSize, 0) 2 ++ cre
 getBlockTiles LBlock r (x,y) = createBlockLine (x,y) offset 3 ++ [createTile (f x r 90) (f y r 180)]
   where offset = if (r `mod'` 180 == 0) then (0, tileSize) else (tileSize, 0)
         f p r o = p + (2 - (((r+o) `mod'` 360) / 90))*tileSize
+
+getBlockTiles JBlock r (x,y) = createBlockLine (x,y) offset 3 ++ [createTile (f x r 90) (f y r 180)]
+  where offset = if (r `mod'` 180 == 0) then (0, tileSize) else (tileSize, 0)
+        f p r o = p - (2 - (((r+o) `mod'` 360) / 90))*tileSize
 
 getBlockTiles TBlock r (x,y) = createBlockLine (x,y) offset 3 ++ [createTile (f x r 90) (f y r 0)]
   where offset = if (r `mod'` 180 == 0) then (tileSize, 0) else (0, tileSize)
@@ -82,7 +87,7 @@ getBlockTiles ZBlock r (x,y) = createBlockLine (x,y) offset 2 ++ createBlockLine
         yo     = if r `mod'` 180 == 0 then y+tileSize else y-tileSize
 
 randomBlockType :: StdGen -> (BlockType, StdGen)
-randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (5,5) g
+randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (3,3) g
 
 randomRotation :: StdGen -> (Int, StdGen)
 randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
