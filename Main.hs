@@ -167,11 +167,12 @@ render g = pictures [renderDashboard g, renderBlocks g]
 renderBlocks :: TetrisGame -> Picture
 renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (landedBlocks g))
 
-renderDashboard g = pictures [scorePic, nextBlockPic, landedBlockPic]
+renderDashboard g = pictures [scorePic, nextBlockPic, landedBlockPic, currentBlockPosPic]
   where
     scorePic     = color white $ translate 100 50 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
     nextBlockPic = color white $ translate 100 0  $ scale 0.1 0.1 $ text $ "Rotation:" ++ (show $ rotation (currentBlock g))
     landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
+    currentBlockPosPic = color white $ translate 100 (-100)  $ scale 0.1 0.1 $ text $ "Pos:" ++ (show $ pos ((tiles (currentBlock g))!!0))
   
 renderBlock :: Block -> Picture
 renderBlock b = pictures $ renderTiles (tiles b) (col b)
@@ -216,8 +217,11 @@ updateCurrentBlock g
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
 -- TODO
-checkCompletedLines g = g { score = (score g) + 1 }
+checkCompletedLines g = --g { score = (score g) + 1 }
+  if any (f ts) [0..(-500)] then g { score = (score g) + 1 } else g
   where ts = getLandedTiles g
+
+f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20
 
 main = do
   is <- initGame
