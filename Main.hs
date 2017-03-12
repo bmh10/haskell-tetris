@@ -160,9 +160,7 @@ initGame = do
   return initialState
 
 render :: TetrisGame -> Picture 
---render g = pictures [translate x y $ rotate (brickRotation g) $ translate (-x) (-y) $ renderBrick g, renderDashboard g]
 render g = pictures [renderDashboard g, renderBlocks g]
-  --where (x, y) = brickPos g
 
 renderBlocks :: TetrisGame -> Picture
 renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (landedBlocks g))
@@ -195,13 +193,6 @@ handleKeys _ g = g { keyPress = None }
 
 rotateBlock b =
   recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
-
---createNewBlock g 
---  = g -- { brickPos = initialBrickPos, brickType = bt, brickRotation = fromIntegral br, gen = gen'' }
---  where 
---    (bt, gen')  = randomBlockType (gen g)
---    (br, gen'') = randomRotation gen'
-
 
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
