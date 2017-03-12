@@ -87,7 +87,7 @@ getBlockTiles ZBlock r (x,y) = createBlockLine (x,y) offset 2 ++ createBlockLine
         yo     = if r `mod'` 180 == 0 then y+tileSize else y-tileSize
 
 randomBlockType :: StdGen -> (BlockType, StdGen)
-randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (3,3) g
+randomBlockType g = (toEnum $ r, g') where (r, g') = randomR (0,6) g
 
 randomRotation :: StdGen -> (Int, StdGen)
 randomRotation g = (90*r, g') where (r, g') = randomR (0,3) g
@@ -143,6 +143,9 @@ data TetrisGame = Game
     score :: Int,
     gen :: StdGen
   } deriving Show
+
+getLandedTiles :: TetrisGame -> [Tile]
+getLandedTiles g = foldl (\ts b -> ts ++ (tiles b)) [] (landedBlocks g)
 
 initGame = do
   stdGen <- newStdGen
@@ -214,6 +217,7 @@ updateCurrentBlock g
 
 -- TODO
 checkCompletedLines g = g { score = (score g) + 1 }
+  where ts = getLandedTiles g
 
 main = do
   is <- initGame
