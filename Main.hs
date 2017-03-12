@@ -19,8 +19,7 @@ initialBrickPos = (10, 210)
 window = InWindow "Tetris" (width, height) (offset, offset)
 background = black
 
-data BlockType = LineBlock | SquareBlock | LBlock | JBlock | TBlock | SBlock | ZBlock 
-                 deriving (Enum, Eq, Show, Bounded)
+data BlockType = LineBlock | SquareBlock | LBlock | JBlock | TBlock | SBlock | ZBlock deriving (Enum, Eq, Show, Bounded)
 data KeyPress  = South | East | West | None deriving (Eq, Show)
 
 data Tile = Tile
@@ -191,12 +190,10 @@ handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = handleKeyPress $ g { ke
 handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { currentBlock = rotateBlock (currentBlock g) }
 handleKeys _ g = g { keyPress = None }
 
-rotateBlock b =
-  recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
+rotateBlock b = recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
 
 update :: Float -> TetrisGame -> TetrisGame
-update seconds g 
- = updateCurrentBlock $ handleKeyPress g
+update seconds g = updateCurrentBlock $ handleKeyPress g
 
 handleKeyPress g = moveBlock g (keyPress g)
 
@@ -208,9 +205,12 @@ updateCurrentBlock g
  | otherwise = moveBlock g South
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
+-- TODO: optimize
 checkCompletedLines g = if any (f ts) [0,-1..(-500)] then g { score = (score g) + 1 } else g
   where ts     = getLandedTiles g
         f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20 
+
+clearLine ts n = filter (\t -> (snd (pos t)) \= n) ts)   
 
 main = do
   is <- initGame
