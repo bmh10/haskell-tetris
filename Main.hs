@@ -70,7 +70,11 @@ getBlockTiles LBlock r (x,y) = createBlockLine (x,y) offset 3 ++ [createTile (f 
   where offset = if (r `mod'` 180 == 0) then (0, tileSize) else (tileSize, 0)
         f p r o = p + (2 - (((r+o) `mod'` 360) / 90))*tileSize
 
-getBlockTiles JBlock r (x,y) = createBlockLine (x,y) offset 3 ++ [createTile (f x r 90) (f y r 180)]
+getBlockTiles JBlock r (x,y)
+ | r == 0   = createBlockLine (x,y) offset 3 ++ [createTile (x-tileSize) y]
+ | r == 90  = createBlockLine (x,y) offset 3 ++ [createTile x (y+tileSize)]
+ | r == 180 = createBlockLine (x,y) offset 3 ++ [createTile (x+tileSize) (y+2*tileSize)]
+ | r == 270 = createBlockLine (x,y) offset 3 ++ [createTile (x+2*tileSize) (y-tileSize)]
   where offset = if (r `mod'` 180 == 0) then (0, tileSize) else (tileSize, 0)
         f p r o = p - (2 - (((r+o) `mod'` 360) / 90))*tileSize
 
