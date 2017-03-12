@@ -205,23 +205,21 @@ rotateBlock b =
 
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g 
- = checkCompletedLines $ updateCurrentBlock $ handleKeyPress g
+ = updateCurrentBlock $ handleKeyPress g
 
 handleKeyPress g = moveBlock g (keyPress g)
 
 updateCurrentBlock g
- | hasBlockLanded g = g { landedBlocks = (currentBlock g) : (landedBlocks g), 
-                                         currentBlock = randBlock,
-                                         gen = gen' }
+ | hasBlockLanded g = checkCompletedLines
+                      $ g { landedBlocks = (currentBlock g) : (landedBlocks g), 
+                            currentBlock = randBlock,
+                            gen = gen' }
  | otherwise = moveBlock g South
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
--- TODO
-checkCompletedLines g = --g { score = (score g) + 1 }
-  if any (f ts) [0..(-500)] then g { score = (score g) + 1 } else g
-  where ts = getLandedTiles g
-
-f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20
+checkCompletedLines g = if any (f ts) [0,-1..(-500)] then g { score = (score g) + 1 } else g
+  where ts     = getLandedTiles g
+        f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20 
 
 main = do
   is <- initGame
