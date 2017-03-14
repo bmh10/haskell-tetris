@@ -210,13 +210,17 @@ checkCompletedLines g = if any (f ts) [0,-1..(-500)] then g { score = (score g) 
   where ts     = getLandedTiles g
         f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20 
 
-checkCompletedLines' g = clearLine g (getFirstCompletedLine g)
+-- TODO: new approach
+checkCompletedLines' g = clearLine g (getFirstCompletedLine g) 
 
 -- TODO: Gets the y-pos of the first completed line from the bottom
-getFirstCompletedLine g = g
+getFirstCompletedLine g = 1
 
 -- TODO: Removes all tiles with y-pos set to y
-clearLine g y = filter (\t -> (snd (pos t)) /= n) ts   
+clearLine g y  = g { landedBlocks = clearBlocks (landedBlocks g) y} 
+clearBlocks []     _ = []
+clearBlocks (b:bs) y = b { tiles = clearTiles (tiles b) y} : clearBlocks bs y
+clearTiles ts y = filter (\t -> (snd (pos t)) /= y) ts
 
 main = do
   is <- initGame
