@@ -198,7 +198,7 @@ update seconds g = updateCurrentBlock $ handleKeyPress g
 handleKeyPress g = moveBlock g (keyPress g)
 
 updateCurrentBlock g
- | hasBlockLanded g = checkCompletedLines
+ | hasBlockLanded g = checkCompletedLines'
                       $ g { landedBlocks = (currentBlock g) : (landedBlocks g), 
                             currentBlock = randBlock,
                             gen = gen' }
@@ -214,9 +214,12 @@ checkCompletedLines g = if any (f ts) [0,-1..(-500)] then g { score = (score g) 
 checkCompletedLines' g = clearLine g (getFirstCompletedLine g) 
 
 -- TODO: Gets the y-pos of the first completed line from the bottom
-getFirstCompletedLine g = 1
+getFirstCompletedLine g = if null elems then 0 else fst $ elems!!0
+  where ts     = getLandedTiles g
+        f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20 
+        elems  = (filter (\(x,y) -> y) $ zip [0,-1..(-500)] $ map (f ts) [0,-1..(-500)])
 
--- TODO: Removes all tiles with y-pos set to y
+-- Removes all tiles with y-pos set to y
 clearLine g y  = g { landedBlocks = clearBlocks (landedBlocks g) y} 
 clearBlocks []     _ = []
 clearBlocks (b:bs) y = b { tiles = clearTiles (tiles b) y} : clearBlocks bs y
