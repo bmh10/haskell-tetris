@@ -198,26 +198,27 @@ update seconds g = updateCurrentBlock $ handleKeyPress g
 handleKeyPress g = moveBlock g (keyPress g)
 
 updateCurrentBlock g
- | hasBlockLanded g = checkCompletedLines'
+ | hasBlockLanded g = checkCompletedLines
                       $ g { landedBlocks = (currentBlock g) : (landedBlocks g), 
                             currentBlock = randBlock,
                             gen = gen' }
  | otherwise = moveBlock g South
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
--- TODO: optimize
-checkCompletedLines g = if any (f ts) [0,-1..(-500)] then g { score = (score g) + 1 } else g
-  where ts     = getLandedTiles g
-        f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20 
 
--- TODO: new approach
-checkCompletedLines' g = clearLine g (getFirstCompletedLine g) 
+--checkCompletedLines g = if any (f ts) [0,-1..(-500)] then g { score = (score g) + 1 } else g
+--  where ts     = getLandedTiles g
+--        f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20 
 
--- TODO: Gets the y-pos of the first completed line from the bottom
-getFirstCompletedLine g = if null elems then 0 else fst $ elems!!0
-  where ts     = getLandedTiles g
-        f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20 
-        elems  = (filter (\(x,y) -> y) $ zip [0,-1..(-500)] $ map (f ts) [0,-1..(-500)])
+-- TODO: Move all other blocks down after completed line detected
+-- TODO: Iterate using tileSize instead of +1
+checkCompletedLines g = clearLine g (getFirstCompletedLine g) 
+
+getFirstCompletedLine g = getFirstCompletedLine' (getLandedTiles g) (-500)
+
+getFirstCompletedLine' _ 1000 = -9999
+getFirstCompletedLine' ts n = if f ts n then n else getFirstCompletedLine' ts (n+1) 
+  where f ts y = (length $ filter (\t -> (snd (pos t)) == y) ts) == 20 
 
 -- Removes all tiles with y-pos set to y
 clearLine g y  = g { landedBlocks = clearBlocks (landedBlocks g) y} 
