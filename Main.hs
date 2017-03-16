@@ -206,25 +206,24 @@ updateCurrentBlock g
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
 
---checkCompletedLines g = if any (f ts) [0,-1..(-500)] then g { score = (score g) + 1 } else g
---  where ts     = getLandedTiles g
---        f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20 
+-- TODO: does not detect multiple lines - need to run checkCompletedLines until no more completed lines
+checkCompletedLines g = moveDown y $ clearLine y g
+  where y = getFirstCompletedLine g 
 
 -- Move all blocks above y down 1 tile space
 moveDown y g  = g { landedBlocks = moveBlocksDown (landedBlocks g) y} 
 moveBlocksDown bs y = map (\b -> b { tiles = moveTilesDown (tiles b) y}) bs
 moveTilesDown ts y = map (\t -> if snd (pos t) > y then t { pos = (pos t) + (0, -tileSize) } else t) ts
 
--- TODO: does not detect multiple lines - need to run checkCompletedLines until no more completed lines
-checkCompletedLines g = moveDown y $ clearLine y g
-  where y = getFirstCompletedLine g 
-
+-- Gets  y pos of first completed line
 getFirstCompletedLine g = getFirstCompletedLine' (getLandedTiles g) (snd initialBrickPos)
-
 getFirstCompletedLine' ts y
  | y < (-300) = 9999
  | otherwise  =  if f ts y then y else getFirstCompletedLine' ts (y-tileSize) 
   where f ts y = (length $ filter (\t -> (snd (pos t)) == y) ts) == 20 
+
+-- TODO: Gets y pos of all completed lines
+getAllCompletedLines g = [1, 2]
 
 -- Removes all tiles with y-pos set to y
 clearLine y g  = g { landedBlocks = clearBlocks (landedBlocks g) y} 
