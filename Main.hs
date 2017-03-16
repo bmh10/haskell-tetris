@@ -210,21 +210,25 @@ updateCurrentBlock g
 --  where ts     = getLandedTiles g
 --        f ts n = (length $ filter (\t -> (snd (pos t)) == n) ts) == 20 
 
--- TODO: Move all other blocks down after completed line detected
--- TODO: Iterate using tileSize instead of +1
-checkCompletedLines g = clearLine g (getFirstCompletedLine g) 
+-- Move all blocks above y down 1 tile space
+moveDown y g  = g { landedBlocks = moveBlocksDown (landedBlocks g) y} 
+moveBlocksDown bs y = map (\b -> b { tiles = moveTilesDown (tiles b) y}) bs
+moveTilesDown ts y = map (\t -> if snd (pos t) > y then t { pos = (pos t) + (0, -tileSize) } else t) ts
+
+-- TODO: does not detect multiple lines - need to run checkCompletedLines until no more completed lines
+checkCompletedLines g = moveDown y $ clearLine y g
+  where y = getFirstCompletedLine g 
 
 getFirstCompletedLine g = getFirstCompletedLine' (getLandedTiles g) (snd initialBrickPos)
 
-getFirstCompletedLine' ts n
- | n < (-300) = -9999
- | otherwise  =  if f ts n then n else getFirstCompletedLine' ts (n-tileSize) 
+getFirstCompletedLine' ts y
+ | y < (-300) = 9999
+ | otherwise  =  if f ts y then y else getFirstCompletedLine' ts (y-tileSize) 
   where f ts y = (length $ filter (\t -> (snd (pos t)) == y) ts) == 20 
 
 -- Removes all tiles with y-pos set to y
-clearLine g y  = g { landedBlocks = clearBlocks (landedBlocks g) y} 
-clearBlocks []     _ = []
-clearBlocks (b:bs) y = b { tiles = clearTiles (tiles b) y} : clearBlocks bs y
+clearLine y g  = g { landedBlocks = clearBlocks (landedBlocks g) y} 
+clearBlocks bs y = map (\b -> b { tiles = clearTiles (tiles b) y}) bs
 clearTiles ts y = filter (\t -> (snd (pos t)) /= y) ts
 
 main = do
