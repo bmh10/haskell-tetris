@@ -214,10 +214,11 @@ updateCurrentBlock g
 -- TODO: Iterate using tileSize instead of +1
 checkCompletedLines g = clearLine g (getFirstCompletedLine g) 
 
-getFirstCompletedLine g = getFirstCompletedLine' (getLandedTiles g) (-500)
+getFirstCompletedLine g = getFirstCompletedLine' (getLandedTiles g) (snd initialBrickPos)
 
-getFirstCompletedLine' _ 1000 = -9999
-getFirstCompletedLine' ts n = if f ts n then n else getFirstCompletedLine' ts (n+1) 
+getFirstCompletedLine' ts n
+ | n < (-300) = -9999
+ | otherwise  =  if f ts n then n else getFirstCompletedLine' ts (n-tileSize) 
   where f ts y = (length $ filter (\t -> (snd (pos t)) == y) ts) == 20 
 
 -- Removes all tiles with y-pos set to y
