@@ -205,9 +205,7 @@ updateCurrentBlock g
  | otherwise = moveBlock g South
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
-
--- TODO: does not detect multiple lines - need to run checkCompletedLines until no more completed lines
-checkCompletedLines g = moveDown y $ clearLine y g
+checkCompletedLines g = if y == 9999 then g else checkCompletedLines $ moveDown y $ clearLine y g
   where y = getFirstCompletedLine g 
 
 -- Move all blocks above y down 1 tile space
@@ -223,7 +221,8 @@ getFirstCompletedLine' ts y
   where f ts y = (length $ filter (\t -> (snd (pos t)) == y) ts) == 20 
 
 -- TODO: Gets y pos of all completed lines
-getAllCompletedLines g = [1, 2]
+--getAllCompletedLines ts = map fst $ filter (\(y,b) -> b) $ zip [(-300)..(snd initialBrickPos)] $ map (f ts) [(-300)..(snd initialBrickPos)]  
+--  where f ts y = (length $ filter (\t -> (snd (pos t)) == y) ts) == 20 
 
 -- Removes all tiles with y-pos set to y
 clearLine y g  = g { landedBlocks = clearBlocks (landedBlocks g) y} 
