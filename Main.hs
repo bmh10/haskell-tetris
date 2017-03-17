@@ -205,8 +205,10 @@ updateCurrentBlock g
  | otherwise = moveBlock g South
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
-checkCompletedLines g = if y == 9999 then g else checkCompletedLines $ moveDown y $ clearLine y g
-  where y = getFirstCompletedLine g 
+checkCompletedLines g = if y == 9999 then g else checkCompletedLines $ incScore 1 $ moveDown y $ clearLine y g
+  where y = getFirstCompletedLine g
+
+incScore n g = g { score = (score g) + n }
 
 -- Move all blocks above y down 1 tile space
 moveDown y g  = g { landedBlocks = moveBlocksDown (landedBlocks g) y} 
