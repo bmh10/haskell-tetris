@@ -164,12 +164,12 @@ render g = pictures [renderDashboard g, renderBlocks g]
 renderBlocks :: TetrisGame -> Picture
 renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (landedBlocks g))
 
-renderDashboard g = pictures [scorePic, nextBlockPic, landedBlockPic, currentBlockPosPic]
+renderDashboard g = pictures [scorePic, nextBlockPic]
   where
-    scorePic     = color white $ translate 100 50 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
-    nextBlockPic = color white $ translate 100 0  $ scale 0.1 0.1 $ text $ "Rotation:" ++ (show $ rotation (currentBlock g))
-    landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
-    currentBlockPosPic = color white $ translate 100 (-100)  $ scale 0.1 0.1 $ text $ "Pos:" ++ (show $ pos ((tiles (currentBlock g))!!0))
+    scorePic     = color white $ translate (-100) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
+    nextBlockPic = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" ++ (show $ rotation (currentBlock g))
+    --landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
+    --currentBlockPosPic = color white $ translate 100 (-100)  $ scale 0.1 0.1 $ text $ "Pos:" ++ (show $ pos ((tiles (currentBlock g))!!0))
   
 renderBlock :: Block -> Picture
 renderBlock b = pictures $ renderTiles (tiles b) (col b)
