@@ -140,7 +140,8 @@ data TetrisGame = Game
     landedBlocks :: [Block],
     keyPress :: KeyPress,
     score :: Int,
-    gen :: StdGen
+    gen :: StdGen,
+    gameOver :: Bool
   } deriving Show
 
 getLandedTiles :: TetrisGame -> [Tile]
@@ -154,7 +155,8 @@ initGame = do
       landedBlocks = [],
       keyPress = None,
       score = 0,
-      gen = gen'
+      gen = gen',
+      gameOver = False
     }
   return initialState
 
@@ -164,10 +166,11 @@ render g = pictures [renderDashboard g, renderBlocks g]
 renderBlocks :: TetrisGame -> Picture
 renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (landedBlocks g))
 
-renderDashboard g = pictures [scorePic, nextBlockPic]
+renderDashboard g = pictures [scorePic, nextBlockPic, gameOverPic]
   where
     scorePic     = color white $ translate (-100) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
     nextBlockPic = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" ++ (show $ rotation (currentBlock g))
+    gameOverPic  = color white $ translate 150 275  $ scale 0.1 0.1 $ text $ if (gameOver g) then "Game Over" else "Playing"
     --landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
     --currentBlockPosPic = color white $ translate 100 (-100)  $ scale 0.1 0.1 $ text $ "Pos:" ++ (show $ pos ((tiles (currentBlock g))!!0))
   
