@@ -196,9 +196,17 @@ handleKeys _ g = g { keyPress = None }
 rotateBlock b = recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
 
 update :: Float -> TetrisGame -> TetrisGame
-update seconds g = updateCurrentBlock $ handleKeyPress g
+update seconds g = updateGameState $ updateCurrentBlock $ handleKeyPress g
 
 handleKeyPress g = moveBlock g (keyPress g)
+
+updateGameState g
+ | isGameOver g = g { gameOver = True }
+ | otherwise    = g
+
+isGameOver g = any (\t -> snd (pos t) > y) ts
+  where ts = getLandedTiles g
+        y  = snd initialBrickPos
 
 updateCurrentBlock g
  | hasBlockLanded g = checkCompletedLines
