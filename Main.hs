@@ -161,7 +161,7 @@ initGame = do
   return initialState
 
 render :: TetrisGame -> Picture 
-render g = pictures [renderDashboard g, renderBlocks g]
+render g = pictures [renderBlocks g, renderDashboard g]
 
 renderBlocks :: TetrisGame -> Picture
 renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (landedBlocks g))
