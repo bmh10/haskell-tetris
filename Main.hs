@@ -200,15 +200,14 @@ update seconds g = updateGameState $ updateCurrentBlock $ handleKeyPress g
 
 handleKeyPress g = moveBlock g (keyPress g)
 
-updateGameState g
- | isGameOver g = g { gameOver = True }
- | otherwise    = g
+updateGameState g = if isGameOver g then g { gameOver = True } else g
 
 isGameOver g = any (\t -> snd (pos t) > y) ts
   where ts = getLandedTiles g
         y  = snd initialBrickPos
 
 updateCurrentBlock g
+ | (gameOver g)     = g
  | hasBlockLanded g = checkCompletedLines
                       $ g { landedBlocks = (currentBlock g) : (landedBlocks g), 
                             currentBlock = randBlock,
