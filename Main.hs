@@ -170,7 +170,7 @@ renderDashboard g = pictures [scorePic, nextBlockPic, gameOverPic]
   where
     scorePic     = color white $ translate (-100) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
     nextBlockPic = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" ++ (show $ rotation (currentBlock g))
-    gameOverPic  = color white $ translate 150 275  $ scale 0.1 0.1 $ text $ if (gameOver g) then "Game Over" else "Playing"
+    gameOverPic  = color white $ translate (-100) 0  $ scale 0.3 0.3 $ text $ if (gameOver g) then "Game Over" else ""
     --landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
     --currentBlockPosPic = color white $ translate 100 (-100)  $ scale 0.1 0.1 $ text $ "Pos:" ++ (show $ pos ((tiles (currentBlock g))!!0))
   
