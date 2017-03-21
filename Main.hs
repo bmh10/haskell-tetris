@@ -150,15 +150,18 @@ getLandedTiles g = foldl (\ts b -> ts ++ (tiles b)) [] (landedBlocks g)
 initGame = do
   stdGen <- newStdGen
   let (initialBlock, gen') = randomBlock stdGen initialBrickPos
-  let initialState = Game {
-      currentBlock = initialBlock,
-      landedBlocks = [],
-      keyPress = None,
-      score = 0,
-      gen = gen',
-      gameOver = False
-    }
+  let initialState = resetGame' initialBlock gen'
   return initialState
+
+resetGame g = resetGame' (currentBlock g) (gen g)
+resetGame' initialBlock gen' = Game {
+  currentBlock = initialBlock,
+  landedBlocks = [],
+  keyPress = None,
+  score = 0,
+  gen = gen',
+  gameOver = False
+} 
 
 render :: TetrisGame -> Picture 
 render g = pictures [renderBlocks g, renderDashboard g]
@@ -166,11 +169,12 @@ render g = pictures [renderBlocks g, renderDashboard g]
 renderBlocks :: TetrisGame -> Picture
 renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (landedBlocks g))
 
-renderDashboard g = pictures [scorePic, nextBlockPic, gameOverPic]
+renderDashboard g = pictures [scorePic, nextBlockPic, gameOverPic, gameOverPic2]
   where
-    scorePic     = color white $ translate (-100) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
-    nextBlockPic = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" ++ (show $ rotation (currentBlock g))
-    gameOverPic  = color white $ translate (-100) 0  $ scale 0.3 0.3 $ text $ if (gameOver g) then "Game Over" else ""
+    scorePic      = color white $ translate (-100) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
+    nextBlockPic  = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" ++ (show $ rotation (currentBlock g))
+    gameOverPic   = color white $ translate (-100) 0  $ scale 0.3 0.3 $ text $ if (gameOver g) then "Game Over" else ""
+    gameOverPic2  = color white $ translate (-75) (-50)  $ scale 0.1 0.1 $ text $ if (gameOver g) then "Press any key to replay" else ""
     --landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
     --currentBlockPosPic = color white $ translate 100 (-100)  $ scale 0.1 0.1 $ text $ "Pos:" ++ (show $ pos ((tiles (currentBlock g))!!0))
   
@@ -191,7 +195,7 @@ handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = handleKeyPress $ g { ke
 handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = handleKeyPress $ g { keyPress = East }
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = handleKeyPress $ g { keyPress = South }
 handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { currentBlock = rotateBlock (currentBlock g) }
-handleKeys _ g = g { keyPress = None }
+handleKeys _ g = if (gameOver g) then resetGame g else g { keyPress = None }
 
 rotateBlock b = recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
 
