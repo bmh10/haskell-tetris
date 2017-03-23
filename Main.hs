@@ -22,12 +22,20 @@ background = black
 data BlockType = LineBlock | SquareBlock | LBlock | JBlock | TBlock | SBlock | ZBlock deriving (Enum, Eq, Show, Bounded)
 data KeyPress  = South | East | West | None deriving (Eq, Show)
 
+data TetrisGame = Game
+  {
+    currentBlock :: Block,
+    landedBlocks :: [Block],
+    keyPress :: KeyPress,
+    score :: Int,
+    gen :: StdGen,
+    gameOver :: Bool
+  } deriving Show
+
 data Tile = Tile
   {
     pos :: (Float, Float)
   } deriving Show
-
-createTile x y = Tile { pos = (x, y) }
 
 data Block = Block
   {
@@ -37,6 +45,26 @@ data Block = Block
     tiles     :: [Tile]
   } deriving Show
 
+-- Game functions
+initGame = do
+  stdGen <- newStdGen
+  let (initialBlock, gen') = randomBlock stdGen initialBrickPos
+  let initialState = resetGame' initialBlock gen'
+  return initialState
+
+resetGame g = resetGame' (currentBlock g) (gen g)
+resetGame' initialBlock gen' = Game {
+  currentBlock = initialBlock,
+  landedBlocks = [],
+  keyPress = None,
+  score = 0,
+  gen = gen',
+  gameOver = False
+}
+
+incScore n g = g { score = (score g) + n }
+
+-- Block functions
 -- TODO: pos hack
 recreateBlock b = createBlock (blockType b) (rotation b) (pos ((tiles b)!!0))
 
@@ -52,6 +80,8 @@ createBlock t r pos = Block {
   rotation  = r,
   tiles     = getBlockTiles t r pos
 }
+
+rotateBlock b = recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
 
 getBlockColor :: BlockType -> Color
 getBlockColor LineBlock = blue
@@ -99,6 +129,12 @@ moveBlock g kp
     b = currentBlock g
     ts = moveTiles (tiles b) kp
 
+-- Tile functions
+createTile x y = Tile { pos = (x, y) }
+
+getLandedTiles :: TetrisGame -> [Tile]
+getLandedTiles g = foldl (\ts b -> ts ++ (tiles b)) [] (landedBlocks g)
+
 moveTiles ts kp = map (moveTile kp) ts
 
 moveTile kp t = t { pos = (x, y) }
@@ -134,35 +170,7 @@ createBlockLine _ _ 0 = []
 createBlockLine (x,y) (x',y') l = createTile x y : createBlockLine (x+x',y+y') (x',y') (l-1)
 
 
-data TetrisGame = Game
-  {
-    currentBlock :: Block,
-    landedBlocks :: [Block],
-    keyPress :: KeyPress,
-    score :: Int,
-    gen :: StdGen,
-    gameOver :: Bool
-  } deriving Show
-
-getLandedTiles :: TetrisGame -> [Tile]
-getLandedTiles g = foldl (\ts b -> ts ++ (tiles b)) [] (landedBlocks g)
-
-initGame = do
-  stdGen <- newStdGen
-  let (initialBlock, gen') = randomBlock stdGen initialBrickPos
-  let initialState = resetGame' initialBlock gen'
-  return initialState
-
-resetGame g = resetGame' (currentBlock g) (gen g)
-resetGame' initialBlock gen' = Game {
-  currentBlock = initialBlock,
-  landedBlocks = [],
-  keyPress = None,
-  score = 0,
-  gen = gen',
-  gameOver = False
-} 
-
+-- Render functions
 render :: TetrisGame -> Picture 
 render g = pictures [renderBlocks g, renderDashboard g]
 
@@ -190,6 +198,7 @@ renderTile t c =
     (x, y) = (pos t)
     s      = tileSize - 1
 
+-- Input handling
 handleKeys :: Event -> TetrisGame -> TetrisGame
 handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) g  = handleKeyPress $ g { keyPress = West }
 handleKeys (EventKey (SpecialKey KeyRight) Down _ _) g = handleKeyPress $ g { keyPress = East }
@@ -197,8 +206,7 @@ handleKeys (EventKey (SpecialKey KeyDown) Down _ _) g  = handleKeyPress $ g { ke
 handleKeys (EventKey (SpecialKey KeyUp) Down _ _) g    = g { currentBlock = rotateBlock (currentBlock g) }
 handleKeys _ g = if (gameOver g) then resetGame g else g { keyPress = None }
 
-rotateBlock b = recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
-
+-- Update functions
 update :: Float -> TetrisGame -> TetrisGame
 update seconds g = updateGameState $ updateCurrentBlock $ handleKeyPress g
 
@@ -222,8 +230,6 @@ updateCurrentBlock g
 checkCompletedLines g = if y == 9999 then g else checkCompletedLines $ incScore 1 $ moveDown y $ clearLine y g
   where y = getFirstCompletedLine g
 
-incScore n g = g { score = (score g) + n }
-
 -- Move all blocks above y down 1 tile space
 moveDown y g  = g { landedBlocks = moveBlocksDown (landedBlocks g) y} 
 moveBlocksDown bs y = map (\b -> b { tiles = moveTilesDown (tiles b) y}) bs
@@ -235,10 +241,6 @@ getFirstCompletedLine' ts y
  | y < (-300) = 9999
  | otherwise  =  if f ts y then y else getFirstCompletedLine' ts (y-tileSize) 
   where f ts y = (length $ filter (\t -> (snd (pos t)) == y) ts) == 20 
-
--- TODO: Gets y pos of all completed lines
---getAllCompletedLines ts = map fst $ filter (\(y,b) -> b) $ zip [(-300)..(snd initialBrickPos)] $ map (f ts) [(-300)..(snd initialBrickPos)]  
---  where f ts y = (length $ filter (\t -> (snd (pos t)) == y) ts) == 20 
 
 -- Removes all tiles with y-pos set to y
 clearLine y g  = g { landedBlocks = clearBlocks (landedBlocks g) y} 
