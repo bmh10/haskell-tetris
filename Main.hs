@@ -25,6 +25,7 @@ data KeyPress  = South | East | West | None deriving (Eq, Show)
 data TetrisGame = Game
   {
     currentBlock :: Block,
+    nextBlock :: Block,
     landedBlocks :: [Block],
     keyPress :: KeyPress,
     score :: Int,
@@ -49,12 +50,14 @@ data Block = Block
 initGame = do
   stdGen <- newStdGen
   let (initialBlock, gen') = randomBlock stdGen initialBrickPos
-  let initialState = resetGame' initialBlock gen'
+  let (nextBlock, gen'') = randomBlock gen' initialBrickPos
+  let initialState = resetGame' initialBlock nextBlock gen''
   return initialState
 
-resetGame g = resetGame' (currentBlock g) (gen g)
-resetGame' initialBlock gen' = Game {
+resetGame g = resetGame' (currentBlock g) (nextBlock g) (gen g)
+resetGame' initialBlock nextBlock gen' = Game {
   currentBlock = initialBlock,
+  nextBlock    = nextBlock,
   landedBlocks = [],
   keyPress = None,
   score = 0,
@@ -180,7 +183,7 @@ renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (lan
 renderDashboard g = pictures [scorePic, nextBlockPic, gameOverPic, gameOverPic2]
   where
     scorePic      = color white $ translate (-100) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
-    nextBlockPic  = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" ++ (show $ rotation (currentBlock g))
+    nextBlockPic  = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" ++ (show $ blockType (nextBlock g))
     gameOverPic   = color white $ translate (-100) 0  $ scale 0.3 0.3 $ text $ if (gameOver g) then "Game Over" else ""
     gameOverPic2  = color white $ translate (-75) (-50)  $ scale 0.1 0.1 $ text $ if (gameOver g) then "Press any key to replay" else ""
     --landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
@@ -222,7 +225,8 @@ updateCurrentBlock g
  | (gameOver g)     = g
  | hasBlockLanded g = checkCompletedLines
                       $ g { landedBlocks = (currentBlock g) : (landedBlocks g), 
-                            currentBlock = randBlock,
+                            currentBlock = (nextBlock g),
+                            nextBlock    = randBlock,
                             gen = gen' }
  | otherwise = moveBlock g South
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
