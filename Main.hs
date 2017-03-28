@@ -180,10 +180,11 @@ render g = pictures [renderBlocks g, renderDashboard g]
 renderBlocks :: TetrisGame -> Picture
 renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (landedBlocks g))
 
-renderDashboard g = pictures [scorePic, nextBlockPic, gameOverPic, gameOverPic2]
+renderDashboard g = pictures [scorePic, nextBlockPic, nextBlockPic2, gameOverPic, gameOverPic2]
   where
     scorePic      = color white $ translate (-100) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
-    nextBlockPic  = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" ++ (show $ blockType (nextBlock g))
+    nextBlockPic  = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" -- ++ (show $ blockType (nextBlock g))
+    nextBlockPic2 = translate 130 170 $ scale 0.5 0.5 $ renderBlock (nextBlock g) 
     gameOverPic   = color white $ translate (-100) 0  $ scale 0.3 0.3 $ text $ if (gameOver g) then "Game Over" else ""
     gameOverPic2  = color white $ translate (-75) (-50)  $ scale 0.1 0.1 $ text $ if (gameOver g) then "Press any key to replay" else ""
     --landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
