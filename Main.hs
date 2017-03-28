@@ -84,7 +84,8 @@ createBlock t r pos = Block {
   tiles     = getBlockTiles t r pos
 }
 
-rotateBlock b = recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
+rotateBlock b = newBlock --if hasBlockHitLeftSide b then b else newBlock
+  where newBlock = recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
 
 getBlockColor :: BlockType -> Color
 getBlockColor LineBlock = blue
@@ -180,15 +181,13 @@ render g = pictures [renderBlocks g, renderDashboard g]
 renderBlocks :: TetrisGame -> Picture
 renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (landedBlocks g))
 
-renderDashboard g = pictures [scorePic, nextBlockPic, nextBlockPic2, gameOverPic, gameOverPic2]
+renderDashboard g = pictures [scorePic, nextBlockText, nextBlockPic, gameOverPic, gameOverPic2]
   where
-    scorePic      = color white $ translate (-100) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
-    nextBlockPic  = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:" -- ++ (show $ blockType (nextBlock g))
-    nextBlockPic2 = translate 130 170 $ scale 0.5 0.5 $ renderBlock (nextBlock g) 
-    gameOverPic   = color white $ translate (-100) 0  $ scale 0.3 0.3 $ text $ if (gameOver g) then "Game Over" else ""
-    gameOverPic2  = color white $ translate (-75) (-50)  $ scale 0.1 0.1 $ text $ if (gameOver g) then "Press any key to replay" else ""
-    --landedBlockPic = color white $ translate 100 (-50)  $ scale 0.1 0.1 $ text $ "Landed:" ++ (show $ length (landedBlocks g))
-    --currentBlockPosPic = color white $ translate 100 (-100)  $ scale 0.1 0.1 $ text $ "Pos:" ++ (show $ pos ((tiles (currentBlock g))!!0))
+    scorePic       = color white $ translate (-100) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
+    nextBlockText  = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next block:"
+    nextBlockPic   = translate 130 170 $ scale 0.5 0.5 $ renderBlock (nextBlock g) 
+    gameOverPic    = color white $ translate (-100) 0  $ scale 0.3 0.3 $ text $ if (gameOver g) then "Game Over" else ""
+    gameOverPic2   = color white $ translate (-75) (-50)  $ scale 0.1 0.1 $ text $ if (gameOver g) then "Press any key to replay" else ""
   
 renderBlock :: Block -> Picture
 renderBlock b = pictures $ renderTiles (tiles b) (col b)
