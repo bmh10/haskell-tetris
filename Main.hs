@@ -84,7 +84,7 @@ createBlock t r pos = Block {
   tiles     = getBlockTiles t r pos
 }
 
-rotateBlock b = newBlock --if hasBlockHitLeftSide b then b else newBlock
+rotateBlock b = if hasBlockLeftBounds newBlock then b else newBlock
   where newBlock = recreateBlock $ b { rotation = ((rotation b) + 90) `mod'` 360 }
 
 getBlockColor :: BlockType -> Color
@@ -168,6 +168,9 @@ hasTileHitLeftSide t = (x <= -180) where (x, y) = pos t
 
 hasBlockHitRightSide g = any hasTileHitRightSide (tiles (currentBlock g)) || hasBlockCollided g East
 hasTileHitRightSide t = (x >= 180) where (x, y) = pos t
+
+hasBlockLeftBounds b = any hasTileLeftBounds (tiles b)
+hasTileLeftBounds t = x < -180 || x > 180 || y < -290 where (x, y) = pos t 
 
 createBlockLine :: (Float, Float) -> (Float, Float) -> Int -> [Tile]
 createBlockLine _ _ 0 = []
