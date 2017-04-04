@@ -29,6 +29,7 @@ data TetrisGame = Game
     landedBlocks :: [Block],
     keyPress :: KeyPress,
     score :: Int,
+    level :: Int,
     gen :: StdGen,
     gameOver :: Bool
   } deriving Show
@@ -61,6 +62,7 @@ resetGame' initialBlock nextBlock gen' = Game {
   landedBlocks = [],
   keyPress = None,
   score = 0,
+  level = 1,
   gen = gen',
   gameOver = False
 }
@@ -187,7 +189,7 @@ renderBlocks g = pictures $ (renderBlock (currentBlock g) : map renderBlock (lan
 renderDashboard g = pictures [scorePic, levelPic, nextBlockText, nextBlockPic, gameOverPic, gameOverPic2]
   where
     scorePic       = color white $ translate (-150) 275 $ scale 0.1 0.1 $ text $ "Score: " ++ (show $ score g)
-    levelPic       = color white $ translate (-50) 275 $ scale 0.1 0.1 $ text $ "Level: 1"
+    levelPic       = color white $ translate (-50) 275 $ scale 0.1 0.1 $ text $ "Level: " ++ (show $ level g)
     nextBlockText  = color white $ translate 50 275  $ scale 0.1 0.1 $ text $ "Next:"
     nextBlockPic   = translate 100 170 $ scale 0.5 0.5 $ renderBlock (nextBlock g) 
     gameOverPic    = color white $ translate (-100) 0  $ scale 0.3 0.3 $ text $ if (gameOver g) then "Game Over" else ""
@@ -219,7 +221,9 @@ update seconds g = updateGameState $ updateCurrentBlock $ handleKeyPress g
 
 handleKeyPress g = moveBlock g (keyPress g)
 
-updateGameState g = if isGameOver g then g { gameOver = True } else g
+updateGameState g 
+ | isGameOver g   = g { gameOver = True }
+ | otherwise      = g
 
 isGameOver g = any (\t -> snd (pos t) > y) ts
   where ts = getLandedTiles g
@@ -235,8 +239,9 @@ updateCurrentBlock g
  | otherwise = moveBlock g South
   where (randBlock, gen') = randomBlock (gen g) initialBrickPos
 
-checkCompletedLines g = if y == 9999 then g else checkCompletedLines $ incScore 1 $ moveDown y $ clearLine y g
+checkCompletedLines g = if y == 9999 then g else checkCompletedLines $ incLevel $ incScore 1 $ moveDown y $ clearLine y g
   where y = getFirstCompletedLine g
+        incLevel g = if (score g) `mod` 3 == 0 then g { level = (level g) + 1 } else g
 
 -- Move all blocks above y down 1 tile space
 moveDown y g  = g { landedBlocks = moveBlocksDown (landedBlocks g) y} 
