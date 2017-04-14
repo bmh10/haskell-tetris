@@ -1,4 +1,4 @@
 haskell-tetris
 --------------
 
-![screenshot](img/screenshot.png)
+![screenshot](screenshot.png)
