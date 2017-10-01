@@ -17,7 +17,7 @@ cabal-version:       >=1.10
 
 executable haskell-tetris
   main-is:             Main.hs
-  -- other-modules:       
+  other-modules:       Game, Block, Tile, KeyPress
   -- other-extensions:    
   build-depends:       base >=4.6 && <4.7, gloss==1.8.*, random==1.1
   -- hs-source-dirs:      
